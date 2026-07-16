@@ -205,6 +205,7 @@ function App() {
               visionApiKey={visionApiKey} 
               gasApiUrl={gasApiUrl}
               onOpenSettings={() => setShowSettings(true)}
+              columns={columns}
             />
         }
       </main>

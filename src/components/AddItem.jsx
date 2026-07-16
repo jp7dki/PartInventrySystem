@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Camera, Upload, Loader2, CheckCircle2, Key } from 'lucide-react';
 
-const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings }) => {
+const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [] }) => {
   const { t } = useTranslation();
   
   const [formData, setFormData] = useState({
@@ -280,7 +280,13 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings }) => {
             </datalist>
           ))}
 
-          {['Category 1', 'Category 2', 'Manufacturer', 'Part number', 'Qty', 'location 1', 'location 2', 'Note', 'Supplier Part Number'].map((field) => (
+          {(() => {
+            const defaultFields = ['Category 1', 'Category 2', 'Manufacturer', 'Part number', 'Qty', 'location 1', 'location 2', 'Note', 'Supplier Part Number'];
+            const orderedFields = columns && columns.length > 0 
+              ? columns.filter(c => c.id !== 'ID').map(c => c.id)
+              : defaultFields;
+              
+            return orderedFields.map((field) => (
             <div key={field}>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.9rem' }}>
                 {field}
@@ -296,7 +302,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings }) => {
                 }}
               />
             </div>
-          ))}
+          ))})}
 
           <button 
             type="submit" 
