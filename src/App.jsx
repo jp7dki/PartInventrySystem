@@ -12,6 +12,12 @@ function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [visionApiKey, setVisionApiKey] = useState(localStorage.getItem('VISION_API_KEY') || '');
   const [gasApiUrl, setGasApiUrl] = useState(localStorage.getItem('GAS_API_URL') || '');
+  
+  const [hiddenColumns, setHiddenColumns] = useState(() => {
+    const saved = localStorage.getItem('HIDDEN_COLUMNS');
+    return saved ? JSON.parse(saved) : ['ID'];
+  });
+  const allColumns = ['ID', 'Category 1', 'Category 2', 'Manufacturer', 'Part number', 'Qty', 'location 1', 'location 2', 'Note', 'Supplier Part Number'];
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -31,6 +37,7 @@ function App() {
     const trimmedGasUrl = gasApiUrl.trim();
     localStorage.setItem('VISION_API_KEY', trimmedVisionKey);
     localStorage.setItem('GAS_API_URL', trimmedGasUrl);
+    localStorage.setItem('HIDDEN_COLUMNS', JSON.stringify(hiddenColumns));
     setVisionApiKey(trimmedVisionKey);
     setGasApiUrl(trimmedGasUrl);
     setShowSettings(false);
@@ -70,6 +77,30 @@ function App() {
                 style={{ width: '100%', padding: '0.5rem' }}
               />
               <p style={{ fontSize: '0.8rem', opacity: 0.7, marginTop: '0.5rem' }}>スプレッドシートとデータをやり取りするためのURLです。</p>
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.9rem' }}>
+                一覧に表示する列
+              </label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', padding: '1rem', background: 'var(--input-bg)', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
+                {allColumns.map(col => (
+                  <label key={col} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.85rem', cursor: 'pointer' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={!hiddenColumns.includes(col)} 
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setHiddenColumns(prev => prev.filter(c => c !== col));
+                        } else {
+                          setHiddenColumns(prev => [...prev, col]);
+                        }
+                      }} 
+                    />
+                    {col}
+                  </label>
+                ))}
+              </div>
             </div>
 
             <div style={{ marginBottom: '2rem', padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.05)', borderRadius: '8px', border: '1px dashed var(--primary-color)' }}>
@@ -129,7 +160,7 @@ function App() {
 
       <main className="glass-panel">
         {activeTab === 'list' 
-          ? <InventoryList gasApiUrl={gasApiUrl} /> 
+          ? <InventoryList gasApiUrl={gasApiUrl} hiddenColumns={hiddenColumns} /> 
           : <AddItem 
               onAdded={() => setActiveTab('list')} 
               visionApiKey={visionApiKey} 

@@ -14,7 +14,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings }) => {
     'location 1': '',
     'location 2': '',
     'Note': '',
-    'Akiduki': ''
+    'Supplier Part Number': ''
   });
   
   const [autocompleteOptions, setAutocompleteOptions] = useState({
@@ -289,7 +289,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings }) => {
             </datalist>
           ))}
 
-          {['Category 1', 'Category 2', 'Manufacturer', 'Part number', 'Qty', 'location 1', 'location 2', 'Note', 'Akiduki'].map((field) => (
+          {['Category 1', 'Category 2', 'Manufacturer', 'Part number', 'Qty', 'location 1', 'location 2', 'Note', 'Supplier Part Number'].map((field) => (
             <div key={field}>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.9rem' }}>
                 {field}
