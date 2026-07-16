@@ -58,7 +58,7 @@ function App() {
               <p style={{ fontSize: '0.8rem', opacity: 0.7, marginTop: '0.5rem' }}>画像のテキストを高精度に読み取るために使用します。</p>
             </div>
 
-            <div style={{ marginBottom: '1.5rem' }}>
+            <div style={{ marginBottom: '2rem' }}>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.9rem' }}>
                 Google Apps Script Web App URL
               </label>
@@ -70,6 +70,22 @@ function App() {
                 style={{ width: '100%', padding: '0.5rem' }}
               />
               <p style={{ fontSize: '0.8rem', opacity: 0.7, marginTop: '0.5rem' }}>スプレッドシートとデータをやり取りするためのURLです。</p>
+            </div>
+
+            <div style={{ marginBottom: '2rem', padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.05)', borderRadius: '8px', border: '1px dashed var(--primary-color)' }}>
+              <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.95rem', color: 'var(--primary-color)' }}>新しいデータベース（スプレッドシート）を作成</h4>
+              <p style={{ fontSize: '0.8rem', opacity: 0.8, marginBottom: '1rem', lineHeight: '1.4' }}>
+                あらかじめ連携プログラム（GAS）が組み込まれたひな形を、ご自身のGoogleドライブにワンクリックで複製できます。
+              </p>
+              <a 
+                href="https://docs.google.com/spreadsheets/d/134xyuHrr2VSNGJx_pIHy8u3OluYRhi6BPKQvNSylaVo/copy" 
+                target="_blank" 
+                rel="noreferrer"
+                className="btn-primary"
+                style={{ display: 'inline-block', textDecoration: 'none', fontSize: '0.85rem', padding: '0.5rem 1rem' }}
+              >
+                テンプレートをコピー作成
+              </a>
             </div>
 
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
