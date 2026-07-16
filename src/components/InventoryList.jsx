@@ -47,12 +47,18 @@ const InventoryList = ({ gasApiUrl }) => {
     }
   };
 
-  // Cross-column incremental search
+  // Cross-column incremental search with multi-keyword AND support
   const filteredItems = items.filter(item => {
-    if (!searchTerm) return true;
-    const lowerSearchTerm = searchTerm.toLowerCase();
-    return Object.values(item).some(val => 
-      String(val).toLowerCase().includes(lowerSearchTerm)
+    if (!searchTerm.trim()) return true;
+    
+    // Split search term by spaces to get individual keywords
+    const terms = searchTerm.toLowerCase().trim().split(/\s+/);
+    
+    // For every keyword, it must be found in at least one of the item's values (AND logic)
+    return terms.every(term => 
+      Object.values(item).some(val => 
+        String(val).toLowerCase().includes(term)
+      )
     );
   });
 
