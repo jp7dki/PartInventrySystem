@@ -13,11 +13,23 @@ function App() {
   const [visionApiKey, setVisionApiKey] = useState(localStorage.getItem('VISION_API_KEY') || '');
   const [gasApiUrl, setGasApiUrl] = useState(localStorage.getItem('GAS_API_URL') || '');
   
-  const [hiddenColumns, setHiddenColumns] = useState(() => {
-    const saved = localStorage.getItem('HIDDEN_COLUMNS');
-    return saved ? JSON.parse(saved) : ['ID'];
+  const defaultCols = [
+    { id: 'Category 1', visible: true },
+    { id: 'Category 2', visible: true },
+    { id: 'Manufacturer', visible: true },
+    { id: 'Part number', visible: true },
+    { id: 'Qty', visible: true },
+    { id: 'location 1', visible: true },
+    { id: 'location 2', visible: true },
+    { id: 'Note', visible: true },
+    { id: 'Supplier Part Number', visible: true },
+    { id: 'ID', visible: false }
+  ];
+
+  const [columns, setColumns] = useState(() => {
+    const saved = localStorage.getItem('COLUMNS_SETTINGS');
+    return saved ? JSON.parse(saved) : defaultCols;
   });
-  const allColumns = ['ID', 'Category 1', 'Category 2', 'Manufacturer', 'Part number', 'Qty', 'location 1', 'location 2', 'Note', 'Supplier Part Number'];
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -37,7 +49,7 @@ function App() {
     const trimmedGasUrl = gasApiUrl.trim();
     localStorage.setItem('VISION_API_KEY', trimmedVisionKey);
     localStorage.setItem('GAS_API_URL', trimmedGasUrl);
-    localStorage.setItem('HIDDEN_COLUMNS', JSON.stringify(hiddenColumns));
+    localStorage.setItem('COLUMNS_SETTINGS', JSON.stringify(columns));
     setVisionApiKey(trimmedVisionKey);
     setGasApiUrl(trimmedGasUrl);
     setShowSettings(false);
@@ -81,24 +93,50 @@ function App() {
 
             <div style={{ marginBottom: '1.5rem' }}>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.9rem' }}>
-                一覧に表示する列
+                一覧に表示する列と順番
               </label>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', padding: '1rem', background: 'var(--input-bg)', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
-                {allColumns.map(col => (
-                  <label key={col} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.85rem', cursor: 'pointer' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={!hiddenColumns.includes(col)} 
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setHiddenColumns(prev => prev.filter(c => c !== col));
-                        } else {
-                          setHiddenColumns(prev => [...prev, col]);
-                        }
-                      }} 
-                    />
-                    {col}
-                  </label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '1rem', background: 'var(--input-bg)', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
+                {columns.map((col, index) => (
+                  <div key={col.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem', backgroundColor: 'var(--bg-color)', borderRadius: '4px', border: '1px solid var(--glass-border)' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.85rem', flex: 1 }}>
+                      <input 
+                        type="checkbox" 
+                        checked={col.visible} 
+                        onChange={(e) => {
+                          const newCols = [...columns];
+                          newCols[index].visible = e.target.checked;
+                          setColumns(newCols);
+                        }} 
+                      />
+                      {col.id}
+                    </label>
+                    <div style={{ display: 'flex', gap: '0.25rem' }}>
+                      <button 
+                        className="btn-outline" 
+                        style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem', opacity: index === 0 ? 0.3 : 1, cursor: index === 0 ? 'not-allowed' : 'pointer' }}
+                        disabled={index === 0}
+                        onClick={() => {
+                          const newCols = [...columns];
+                          const temp = newCols[index - 1];
+                          newCols[index - 1] = newCols[index];
+                          newCols[index] = temp;
+                          setColumns(newCols);
+                        }}
+                      >▲</button>
+                      <button 
+                        className="btn-outline" 
+                        style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem', opacity: index === columns.length - 1 ? 0.3 : 1, cursor: index === columns.length - 1 ? 'not-allowed' : 'pointer' }}
+                        disabled={index === columns.length - 1}
+                        onClick={() => {
+                          const newCols = [...columns];
+                          const temp = newCols[index + 1];
+                          newCols[index + 1] = newCols[index];
+                          newCols[index] = temp;
+                          setColumns(newCols);
+                        }}
+                      >▼</button>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
@@ -160,7 +198,7 @@ function App() {
 
       <main className="glass-panel">
         {activeTab === 'list' 
-          ? <InventoryList gasApiUrl={gasApiUrl} hiddenColumns={hiddenColumns} /> 
+          ? <InventoryList gasApiUrl={gasApiUrl} columns={columns} /> 
           : <AddItem 
               onAdded={() => setActiveTab('list')} 
               visionApiKey={visionApiKey} 

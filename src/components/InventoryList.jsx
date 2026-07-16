@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Search, Loader2 } from 'lucide-react';
 
-const InventoryList = ({ gasApiUrl, hiddenColumns = ['ID'] }) => {
+const InventoryList = ({ gasApiUrl, columns = [] }) => {
   const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -62,8 +62,22 @@ const InventoryList = ({ gasApiUrl, hiddenColumns = ['ID'] }) => {
     );
   });
 
+  // Calculate the final order of columns to display
+  let finalVisibleColumns = [];
+  if (items.length > 0) {
+    const itemKeys = Object.keys(items[0]);
+    // Start with the user's custom ordered, visible columns
+    const customVisibleKeys = columns.filter(c => c.visible).map(c => c.id);
+    
+    // Find any new keys from the data that are NOT in the settings at all, and append them just in case
+    const unknownKeys = itemKeys.filter(k => !columns.find(c => c.id === k));
+    
+    // Merge them and ensure they actually exist in the data
+    finalVisibleColumns = [...customVisibleKeys, ...unknownKeys].filter(k => itemKeys.includes(k));
+  }
+
   return (
-    <div className="inventory-list">
+    <div className="inventory-list-container">
       <div className="search-bar mb-4">
         <div style={{ position: 'relative' }}>
           <Search style={{ position: 'absolute', top: '12px', left: '12px', opacity: 0.5 }} size={20} />
@@ -92,7 +106,7 @@ const InventoryList = ({ gasApiUrl, hiddenColumns = ['ID'] }) => {
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '800px' }}>
             <thead>
               <tr style={{ borderBottom: '2px solid var(--glass-border)' }}>
-                {Object.keys(items[0] || {}).filter(key => !hiddenColumns.includes(key)).map((key) => (
+                {finalVisibleColumns.map((key) => (
                   <th key={key} style={{ padding: '1rem', color: 'var(--primary-color)', whiteSpace: 'nowrap' }}>{key}</th>
                 ))}
               </tr>
@@ -102,7 +116,7 @@ const InventoryList = ({ gasApiUrl, hiddenColumns = ['ID'] }) => {
                 <tr key={idx} style={{ borderBottom: '1px solid var(--glass-border)', transition: 'background-color 0.2s' }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.05)'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                  {Object.keys(items[0] || {}).filter(key => !hiddenColumns.includes(key)).map((key) => (
+                  {finalVisibleColumns.map((key) => (
                     <td key={key} style={{ padding: '1rem', whiteSpace: key.includes('Note') ? 'normal' : 'nowrap' }}>
                       {key.toLowerCase().includes('category') ? (
                         <span style={{ 
