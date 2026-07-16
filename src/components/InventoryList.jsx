@@ -8,6 +8,15 @@ const InventoryList = ({ gasApiUrl, columns = [] }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
+
+  const handleSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
 
   useEffect(() => {
     fetchData();
@@ -62,6 +71,27 @@ const InventoryList = ({ gasApiUrl, columns = [] }) => {
     );
   });
 
+  const sortedItems = [...filteredItems].sort((a, b) => {
+    if (!sortConfig.key) return 0;
+    
+    const aVal = a[sortConfig.key] || '';
+    const bVal = b[sortConfig.key] || '';
+
+    // Handle numeric sorting for Qty
+    if (sortConfig.key === 'Qty') {
+      const aNum = parseFloat(aVal) || 0;
+      const bNum = parseFloat(bVal) || 0;
+      if (aNum < bNum) return sortConfig.direction === 'ascending' ? -1 : 1;
+      if (aNum > bNum) return sortConfig.direction === 'ascending' ? 1 : -1;
+      return 0;
+    }
+    
+    // Default string sorting
+    if (aVal < bVal) return sortConfig.direction === 'ascending' ? -1 : 1;
+    if (aVal > bVal) return sortConfig.direction === 'ascending' ? 1 : -1;
+    return 0;
+  });
+
   // Calculate the final order of columns to display
   let finalVisibleColumns = [];
   if (items.length > 0) {
@@ -107,12 +137,23 @@ const InventoryList = ({ gasApiUrl, columns = [] }) => {
             <thead>
               <tr style={{ borderBottom: '2px solid var(--glass-border)' }}>
                 {finalVisibleColumns.map((key) => (
-                  <th key={key} style={{ padding: '1rem', color: 'var(--primary-color)', whiteSpace: 'nowrap' }}>{key}</th>
+                  <th 
+                    key={key} 
+                    style={{ padding: '1rem', color: 'var(--primary-color)', whiteSpace: 'nowrap', cursor: 'pointer', userSelect: 'none' }}
+                    onClick={() => handleSort(key)}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                      {key}
+                      <span style={{ fontSize: '0.8rem', opacity: sortConfig.key === key ? 1 : 0.3 }}>
+                        {sortConfig.key === key ? (sortConfig.direction === 'ascending' ? '▲' : '▼') : '↕'}
+                      </span>
+                    </div>
+                  </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {filteredItems.map((item, idx) => (
+              {sortedItems.map((item, idx) => (
                 <tr key={idx} style={{ borderBottom: '1px solid var(--glass-border)', transition: 'background-color 0.2s' }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.05)'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
