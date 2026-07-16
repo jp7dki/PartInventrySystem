@@ -6,7 +6,6 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings }) => {
   const { t } = useTranslation();
   
   const [formData, setFormData] = useState({
-    'ID': '',
     'Category 1': '',
     'Category 2': '',
     'Manufacturer': '',
@@ -17,6 +16,22 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings }) => {
     'Note': '',
     'Akiduki': ''
   });
+  
+  const [manufacturers, setManufacturers] = useState([]);
+
+  useEffect(() => {
+    if (gasApiUrl && gasApiUrl.trim() !== '') {
+      fetch(gasApiUrl)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'success' && data.data) {
+            const uniqueMfrs = [...new Set(data.data.map(item => item['Manufacturer']).filter(Boolean))];
+            setManufacturers(uniqueMfrs);
+          }
+        })
+        .catch(err => console.error('Failed to fetch manufacturers:', err));
+    }
+  }, [gasApiUrl]);
   
   const [imageSrc, setImageSrc] = useState(null);
   const [ocrTextBlocks, setOcrTextBlocks] = useState([]);
@@ -170,6 +185,15 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings }) => {
     e.preventDefault();
     setSubmitStatus('submitting');
     
+    const dateStr = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
+    const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const generatedId = `ID-${dateStr}-${randomStr}`;
+
+    const payloadItem = {
+      ...formData,
+      'ID': generatedId
+    };
+
     if (!gasApiUrl || gasApiUrl.trim() === '') {
       setTimeout(() => {
         setSubmitStatus('success');
@@ -183,7 +207,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings }) => {
     try {
       const payload = {
         action: 'add',
-        item: formData
+        item: payloadItem
       };
       
       const response = await fetch(gasApiUrl, {
@@ -246,13 +270,19 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings }) => {
           </button>
         </div>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {['ID', 'Category 1', 'Category 2', 'Manufacturer', 'Part number', 'Qty', 'location 1', 'location 2', 'Note', 'Akiduki'].map((field) => (
+          
+          <datalist id="manufacturer-list">
+            {manufacturers.map(mfr => <option key={mfr} value={mfr} />)}
+          </datalist>
+
+          {['Category 1', 'Category 2', 'Manufacturer', 'Part number', 'Qty', 'location 1', 'location 2', 'Note', 'Akiduki'].map((field) => (
             <div key={field}>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.9rem' }}>
                 {field}
               </label>
               <input
                 type={field === 'Qty' ? 'number' : 'text'}
+                list={field === 'Manufacturer' ? 'manufacturer-list' : undefined}
                 value={formData[field]}
                 onChange={(e) => handleInputChange(field, e.target.value)}
                 onFocus={() => setFocusedField(field)}
