@@ -271,15 +271,6 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings }) => {
       <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
           <h2 className="mb-0">{t('manual_entry')}</h2>
-          <button 
-            type="button"
-            className="btn-secondary" 
-            style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
-            onClick={onOpenSettings}
-            title="設定"
-          >
-            <Key size={16} /> API設定
-          </button>
         </div>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           
