@@ -17,7 +17,13 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings }) => {
     'Akiduki': ''
   });
   
-  const [manufacturers, setManufacturers] = useState([]);
+  const [autocompleteOptions, setAutocompleteOptions] = useState({
+    'Category 1': [],
+    'Category 2': [],
+    'Manufacturer': [],
+    'location 1': [],
+    'location 2': []
+  });
 
   useEffect(() => {
     if (gasApiUrl && gasApiUrl.trim() !== '') {
@@ -25,11 +31,17 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings }) => {
         .then(res => res.json())
         .then(data => {
           if (data.status === 'success' && data.data) {
-            const uniqueMfrs = [...new Set(data.data.map(item => item['Manufacturer']).filter(Boolean))];
-            setManufacturers(uniqueMfrs);
+            const options = {
+              'Category 1': [...new Set(data.data.map(i => i['Category 1']).filter(Boolean))],
+              'Category 2': [...new Set(data.data.map(i => i['Category 2']).filter(Boolean))],
+              'Manufacturer': [...new Set(data.data.map(i => i['Manufacturer']).filter(Boolean))],
+              'location 1': [...new Set(data.data.map(i => i['location 1']).filter(Boolean))],
+              'location 2': [...new Set(data.data.map(i => i['location 2']).filter(Boolean))]
+            };
+            setAutocompleteOptions(options);
           }
         })
-        .catch(err => console.error('Failed to fetch manufacturers:', err));
+        .catch(err => console.error('Failed to fetch autocomplete options:', err));
     }
   }, [gasApiUrl]);
   
@@ -271,9 +283,11 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings }) => {
         </div>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           
-          <datalist id="manufacturer-list">
-            {manufacturers.map(mfr => <option key={mfr} value={mfr} />)}
-          </datalist>
+          {Object.entries(autocompleteOptions).map(([field, options]) => (
+            <datalist id={`${field}-list`} key={field}>
+              {options.map(opt => <option key={opt} value={opt} />)}
+            </datalist>
+          ))}
 
           {['Category 1', 'Category 2', 'Manufacturer', 'Part number', 'Qty', 'location 1', 'location 2', 'Note', 'Akiduki'].map((field) => (
             <div key={field}>
@@ -282,7 +296,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings }) => {
               </label>
               <input
                 type={field === 'Qty' ? 'number' : 'text'}
-                list={field === 'Manufacturer' ? 'manufacturer-list' : undefined}
+                list={autocompleteOptions[field] ? `${field}-list` : undefined}
                 value={formData[field]}
                 onChange={(e) => handleInputChange(field, e.target.value)}
                 onFocus={() => setFocusedField(field)}

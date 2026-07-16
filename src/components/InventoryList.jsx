@@ -86,7 +86,7 @@ const InventoryList = ({ gasApiUrl }) => {
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '800px' }}>
             <thead>
               <tr style={{ borderBottom: '2px solid var(--glass-border)' }}>
-                {Object.keys(items[0] || {}).map((key) => (
+                {Object.keys(items[0] || {}).filter(key => key !== 'ID').map((key) => (
                   <th key={key} style={{ padding: '1rem', color: 'var(--primary-color)', whiteSpace: 'nowrap' }}>{key}</th>
                 ))}
               </tr>
@@ -96,7 +96,7 @@ const InventoryList = ({ gasApiUrl }) => {
                 <tr key={idx} style={{ borderBottom: '1px solid var(--glass-border)', transition: 'background-color 0.2s' }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.05)'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-                  {Object.keys(items[0] || {}).map((key) => (
+                  {Object.keys(items[0] || {}).filter(key => key !== 'ID').map((key) => (
                     <td key={key} style={{ padding: '1rem', whiteSpace: key.includes('Note') ? 'normal' : 'nowrap' }}>
                       {key.toLowerCase().includes('category') ? (
                         <span style={{ 
