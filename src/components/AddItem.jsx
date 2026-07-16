@@ -264,6 +264,11 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
     };
   };
 
+  const defaultFields = ['Category 1', 'Category 2', 'Manufacturer', 'Part number', 'Qty', 'location 1', 'location 2', 'Note', 'Supplier Part Number'];
+  const orderedFields = columns && columns.length > 0 
+    ? columns.filter(c => c.id !== 'ID').map(c => c.id)
+    : defaultFields;
+
   return (
     <div className="add-item-container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
       
@@ -280,13 +285,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
             </datalist>
           ))}
 
-          {(() => {
-            const defaultFields = ['Category 1', 'Category 2', 'Manufacturer', 'Part number', 'Qty', 'location 1', 'location 2', 'Note', 'Supplier Part Number'];
-            const orderedFields = columns && columns.length > 0 
-              ? columns.filter(c => c.id !== 'ID').map(c => c.id)
-              : defaultFields;
-              
-            return orderedFields.map((field) => (
+          {orderedFields.map((field) => (
             <div key={field}>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.9rem' }}>
                 {field}
@@ -302,7 +301,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
                 }}
               />
             </div>
-          ))})}
+          ))}
 
           <button 
             type="submit" 
