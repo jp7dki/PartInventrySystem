@@ -91,6 +91,22 @@ function App() {
               <p style={{ fontSize: '0.8rem', opacity: 0.7, marginTop: '0.5rem' }}>スプレッドシートとデータをやり取りするためのURLです。</p>
             </div>
 
+            <div style={{ marginBottom: '2rem', padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.05)', borderRadius: '8px', border: '1px dashed var(--primary-color)' }}>
+              <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.95rem', color: 'var(--primary-color)' }}>新しいデータベース（スプレッドシート）を作成</h4>
+              <p style={{ fontSize: '0.8rem', opacity: 0.8, marginBottom: '1rem', lineHeight: '1.4' }}>
+                あらかじめ連携プログラム（GAS）が組み込まれたひな形を、ご自身のGoogleドライブにワンクリックで複製できます。
+              </p>
+              <a 
+                href="https://docs.google.com/spreadsheets/d/134xyuHrr2VSNGJx_pIHy8u3OluYRhi6BPKQvNSylaVo/copy" 
+                target="_blank" 
+                rel="noreferrer"
+                className="btn-primary"
+                style={{ display: 'inline-block', textDecoration: 'none', fontSize: '0.85rem', padding: '0.5rem 1rem' }}
+              >
+                テンプレートをコピー作成
+              </a>
+            </div>
+
             <div style={{ marginBottom: '1.5rem' }}>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.9rem' }}>
                 一覧に表示する列と順番
@@ -98,19 +114,20 @@ function App() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '1rem', background: 'var(--input-bg)', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
                 {columns.map((col, index) => (
                   <div key={col.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem', backgroundColor: 'var(--bg-color)', borderRadius: '4px', border: '1px solid var(--glass-border)' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.85rem', flex: 1 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.85rem', flex: 1, overflow: 'hidden' }}>
                       <input 
                         type="checkbox" 
                         checked={col.visible} 
+                        style={{ width: 'auto', margin: 0, flexShrink: 0 }}
                         onChange={(e) => {
                           const newCols = [...columns];
                           newCols[index].visible = e.target.checked;
                           setColumns(newCols);
                         }} 
                       />
-                      {col.id}
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{col.id}</span>
                     </label>
-                    <div style={{ display: 'flex', gap: '0.25rem' }}>
+                    <div style={{ display: 'flex', gap: '0.25rem', flexShrink: 0 }}>
                       <button 
                         className="btn-outline" 
                         style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem', opacity: index === 0 ? 0.3 : 1, cursor: index === 0 ? 'not-allowed' : 'pointer' }}
@@ -139,22 +156,6 @@ function App() {
                   </div>
                 ))}
               </div>
-            </div>
-
-            <div style={{ marginBottom: '2rem', padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.05)', borderRadius: '8px', border: '1px dashed var(--primary-color)' }}>
-              <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.95rem', color: 'var(--primary-color)' }}>新しいデータベース（スプレッドシート）を作成</h4>
-              <p style={{ fontSize: '0.8rem', opacity: 0.8, marginBottom: '1rem', lineHeight: '1.4' }}>
-                あらかじめ連携プログラム（GAS）が組み込まれたひな形を、ご自身のGoogleドライブにワンクリックで複製できます。
-              </p>
-              <a 
-                href="https://docs.google.com/spreadsheets/d/134xyuHrr2VSNGJx_pIHy8u3OluYRhi6BPKQvNSylaVo/copy" 
-                target="_blank" 
-                rel="noreferrer"
-                className="btn-primary"
-                style={{ display: 'inline-block', textDecoration: 'none', fontSize: '0.85rem', padding: '0.5rem 1rem' }}
-              >
-                テンプレートをコピー作成
-              </a>
             </div>
 
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
