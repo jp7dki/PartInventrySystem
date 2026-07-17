@@ -196,19 +196,6 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
       let foundAkizukiCode = null;
 
       if (textAnnotations && textAnnotations.length > 0) {
-        const fullText = textAnnotations[0].description;
-        // Akizuki code regex: find all 6-digit numbers (or P-00035 format) and take the largest
-        const akizukiRegex = /\b([A-Za-z]-\d{5}|\d{6})\b/g;
-        const matches = [...fullText.matchAll(akizukiRegex)].map(m => m[1]);
-        if (matches.length > 0) {
-          // 複数の候補が見つかった場合、数値として最も大きいものを採用する
-          matches.sort((a, b) => {
-            const valA = parseInt(a.replace(/^[A-Za-z]-/, '1'), 10);
-            const valB = parseInt(b.replace(/^[A-Za-z]-/, '1'), 10);
-            return valB - valA; // 降順
-          });
-          foundAkizukiCode = matches[0];
-        }
 
         if (textAnnotations.length > 1) {
           // Skip the first element as it contains the full text
@@ -229,6 +216,21 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
                 bbox: { x0, y0, x1, y1 }
               });
             }
+          }
+        }
+      }
+
+      // 抽出したブロックの中から通販コード（6桁の数字またはP-00035等）を探す
+      // 誤認識（バーコード下の小さい数字等）を防ぐため、一番文字が大きい（高さが最大の）ものを採用する
+      let maxBlockHeight = 0;
+      for (const block of extractedBlocks) {
+        const match = block.text.match(/\b([A-Za-z]-\d{5}|\d{6})\b/);
+        if (match && match[1]) {
+          const code = match[1];
+          const height = block.bbox.y1 - block.bbox.y0;
+          if (height > maxBlockHeight) {
+            maxBlockHeight = height;
+            foundAkizukiCode = code;
           }
         }
       }
