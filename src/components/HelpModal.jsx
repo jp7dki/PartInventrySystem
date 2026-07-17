@@ -1,5 +1,5 @@
 import React from 'react';
-import { HelpCircle, X, Camera, Search, Settings, FileSpreadsheet } from 'lucide-react';
+import { HelpCircle, X, Camera, Search, Settings, FileSpreadsheet, Key } from 'lucide-react';
 
 const HelpModal = ({ onClose }) => {
   return (
@@ -74,6 +74,32 @@ const HelpModal = ({ onClose }) => {
               登録したデータは、自動的にインターネット上の<strong>「Googleスプレッドシート（Excelのような表計算ソフト）」</strong>に保存されています。<br/>
               スマホが壊れてもデータはGoogleに残っているので安心です！
             </p>
+          </section>
+
+          <section style={{ backgroundColor: 'var(--input-bg)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', marginBottom: '1rem' }}>
+              <Key size={20} />
+              5. 最初の準備（ここが一番むずかしい！）
+            </h3>
+            <p style={{ fontSize: '0.95rem', margin: 0, marginBottom: '1rem' }}>
+              このアプリを使うには、最初に「どこにデータを保存するか」と「カメラの人工知能のパスワード」を設定する必要があります。少し難しいので、大人の人に手伝ってもらっても大丈夫です！
+            </p>
+            
+            <h4 style={{ fontSize: '1rem', marginBottom: '0.5rem', color: 'var(--primary-color)' }}>① データの保存先（スプレッドシート）の設定</h4>
+            <ol style={{ fontSize: '0.9rem', paddingLeft: '1.5rem', marginBottom: '1.5rem', lineHeight: '1.5' }}>
+              <li>右上の「歯車マーク」から設定画面を開き、<strong>「テンプレートをコピー作成」</strong>ボタンを押して自分用の表を作ります。</li>
+              <li>開いた表の上のメニューから<strong>「拡張機能」＞「Apps Script」</strong>を選びます。</li>
+              <li>右上の青いボタン<strong>「デプロイ」＞「新しいデプロイ」</strong>を選び、そのまま<strong>「デプロイ」</strong>を押します（アクセスを承認する画面が出たら許可してください）。</li>
+              <li>最後に表示される<strong>「ウェブアプリのURL」</strong>をコピーします。</li>
+              <li>このアプリの設定画面の「Google Apps Script Web API URL」という場所に貼り付けます。</li>
+            </ol>
+
+            <h4 style={{ fontSize: '1rem', marginBottom: '0.5rem', color: 'var(--primary-color)' }}>② カメラで文字を読むため（OCR）の設定</h4>
+            <ol style={{ fontSize: '0.9rem', paddingLeft: '1.5rem', margin: 0, lineHeight: '1.5' }}>
+              <li>「Google Cloud Vision API」というGoogleの人工知能サービスに登録します（お小遣いは減りません！毎月たくさん無料で使えます）。</li>
+              <li>「APIキー」という専用のパスワードを作ってコピーします。</li>
+              <li>このアプリの設定画面の「Google Cloud Vision API Key」という場所に貼り付けます。</li>
+            </ol>
           </section>
 
         </div>
