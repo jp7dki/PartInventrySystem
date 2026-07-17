@@ -53,6 +53,22 @@ function App() {
     localStorage.setItem('COLUMNS_SETTINGS', JSON.stringify(columns));
     setVisionApiKey(trimmedVisionKey);
     setGasApiUrl(trimmedGasUrl);
+
+    if (trimmedGasUrl) {
+      try {
+        fetch(trimmedGasUrl, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'syncHeaders',
+            headers: columns.map(c => c.id)
+          }),
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+        });
+      } catch (err) {
+        console.error('Failed to sync headers', err);
+      }
+    }
+
     setShowSettings(false);
     alert('設定を保存しました。');
   };

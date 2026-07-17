@@ -58,6 +58,15 @@ function doPost(e) {
       const newRow = headers.map(header => item[header] || '');
       sheet.appendRow(newRow);
       return createJsonResponse({ status: 'success', message: 'Item added successfully' });
+    } else if (action === 'syncHeaders') {
+      const payloadHeaders = payload.headers || [];
+      const newHeaders = payloadHeaders.filter(key => !headers.includes(key));
+      
+      if (newHeaders.length > 0) {
+        headers = headers.concat(newHeaders);
+        sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      }
+      return createJsonResponse({ status: 'success', message: 'Headers synced successfully' });
     } else {
       return createJsonResponse({ status: 'error', message: 'Unknown action' });
     }
