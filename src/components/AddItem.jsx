@@ -255,7 +255,9 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
   };
 
   const handleBlockClick = (text) => {
-    if (focusedField) {
+    if (focusedField === 'akizukiCode') {
+      setAkizukiCode(prev => prev ? prev + ' ' + text : text);
+    } else if (focusedField) {
       handleInputChange(focusedField, formData[focusedField] ? formData[focusedField] + ' ' + text : text);
     }
   };
@@ -364,6 +366,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
               placeholder="通販コード" 
               value={akizukiCode}
               onChange={e => setAkizukiCode(e.target.value)}
+              onFocus={() => setFocusedField('akizukiCode')}
               style={{ flex: 1, padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--glass-border)' }}
             />
             <button 
