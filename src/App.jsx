@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Globe, Moon, Sun, Settings } from 'lucide-react';
+import { Globe, Moon, Sun, Settings, HelpCircle } from 'lucide-react';
 import InventoryList from './components/InventoryList';
 import AddItem from './components/AddItem';
+import HelpModal from './components/HelpModal';
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -10,6 +11,7 @@ function App() {
   const [theme, setTheme] = useState('light');
   
   const [showSettings, setShowSettings] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const [visionApiKey, setVisionApiKey] = useState(localStorage.getItem('VISION_API_KEY') || '');
   const [gasApiUrl, setGasApiUrl] = useState(localStorage.getItem('GAS_API_URL') || '');
   
@@ -222,6 +224,9 @@ function App() {
       <header className="glass-panel">
         <h1>{t('app_title')}</h1>
         <div className="header-controls">
+          <button className="btn btn-outline" onClick={() => setShowHelp(true)} title="使い方">
+            <HelpCircle size={18} />
+          </button>
           <button className="btn btn-outline" onClick={() => setShowSettings(true)} title="設定">
             <Settings size={18} />
           </button>
@@ -262,6 +267,8 @@ function App() {
             />
         }
       </main>
+
+      {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
     </div>
   );
 }
