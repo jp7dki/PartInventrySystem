@@ -87,25 +87,48 @@ function doPost(e) {
       const response = UrlFetchApp.fetch(url, options);
       if (response.getResponseCode() === 200) {
         const html = response.getContentText("UTF-8");
+        
+        let partName = '';
+        let category = '';
+        let manufacturer = '';
+
+        // 型番を抽出
+        const modelMatch = html.match(/<dt>型番<\/dt>\s*<dd[^>]*>(.*?)<\/dd>/i);
+        if (modelMatch) {
+          partName = modelMatch[1].trim();
+        }
+        
+        // メーカーを抽出
+        const makerMatch = html.match(/<dt>メーカー<\/dt>\s*<dd><a[^>]*>(.*?)<\/a><\/dd>/i);
+        if (makerMatch) {
+          manufacturer = makerMatch[1].trim();
+        }
+
+        // カテゴリ（および型番が取れなかった時の予備の名前）をタイトルから抽出
         const titleMatch = html.match(/<title>(.*?)<\/title>/);
         if (titleMatch) {
           let title = titleMatch[1];
           if (title.includes('秋月電子通商')) {
             let parts = title.split(':');
-            let partName = parts[0].trim();
-            let category = '';
+            if (!partName) {
+              partName = parts[0].trim();
+            }
             if (parts.length > 1) {
               category = parts[1].split('秋月電子通商')[0].trim();
             }
-            return createJsonResponse({ 
-              status: 'success', 
-              data: { 
-                name: partName, 
-                category: category,
-                code: parsedCode
-              } 
-            });
           }
+        }
+
+        if (partName) {
+          return createJsonResponse({ 
+            status: 'success', 
+            data: { 
+              name: partName, 
+              category: category,
+              manufacturer: manufacturer,
+              code: parsedCode
+            } 
+          });
         }
       }
       return createJsonResponse({ status: 'error', message: '商品情報の取得に失敗しました。' });

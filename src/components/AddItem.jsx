@@ -76,12 +76,14 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
         const partNameId = columns.find(c => ['part number', '部品名', '商品名', '型番'].includes(c.id.toLowerCase()))?.id || 'Part number';
         const categoryId = columns.find(c => ['category 1', 'category', 'カテゴリ', '分類'].includes(c.id.toLowerCase()))?.id || 'Category 1';
         const supplierId = columns.find(c => ['supplier part number', '通販コード', '購入元コード', '秋月コード', '購入先'].includes(c.id.toLowerCase()))?.id || 'Supplier Part Number';
+        const manufacturerId = columns.find(c => ['manufacturer', 'メーカー', '製造元'].includes(c.id.toLowerCase()))?.id || 'Manufacturer';
         
         setFormData(prev => ({
           ...prev,
           [partNameId]: data.data.name || prev[partNameId] || '',
           [categoryId]: data.data.category || prev[categoryId] || '',
           [supplierId]: data.data.code || prev[supplierId] || '',
+          [manufacturerId]: data.data.manufacturer || prev[manufacturerId] || '',
         }));
         setAkizukiCode('');
       } else {
