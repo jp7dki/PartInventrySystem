@@ -26,6 +26,17 @@ const HelpModal = ({ onClose }) => {
         </h2>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', lineHeight: '1.6' }}>
+
+          <section style={{ backgroundColor: 'var(--input-bg)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', marginBottom: '0.5rem' }}>
+              <Key size={20} />
+              0. 最初の準備（初期設定）
+            </h3>
+            <p style={{ fontSize: '0.95rem', margin: 0 }}>
+              本アプリを利用するためには、まず最初にデータの保存先（Googleスプレッドシート）と画像読み取り機能（Google Cloud Vision API）の連携設定が必要です。<br/>
+              右上の<strong>歯車マーク（設定画面）</strong>から詳しい手順を確認し、設定を行ってください。
+            </p>
+          </section>
           
           <section>
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', marginBottom: '0.5rem' }}>
@@ -73,32 +84,6 @@ const HelpModal = ({ onClose }) => {
               登録したデータは、連携した<strong>「Googleスプレッドシート」</strong>に自動的に保存・同期されます。<br/>
               万が一デバイスが故障しても、データはクラウド上に安全に保管されています。
             </p>
-          </section>
-
-          <section style={{ backgroundColor: 'var(--input-bg)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
-            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', marginBottom: '1rem' }}>
-              <Key size={20} />
-              5. 初期設定（APIとスプレッドシートの連携）
-            </h3>
-            <p style={{ fontSize: '0.95rem', margin: 0, marginBottom: '1rem' }}>
-              本アプリを利用するためには、データの保存先となる「Googleスプレッドシート」と、画像読み取り機能を利用するための「Google Cloud Vision API」の設定が必要です。
-            </p>
-            
-            <h4 style={{ fontSize: '1rem', marginBottom: '0.5rem', color: 'var(--primary-color)' }}>① データの保存先（スプレッドシート）の設定</h4>
-            <ol style={{ fontSize: '0.9rem', paddingLeft: '1.5rem', marginBottom: '1.5rem', lineHeight: '1.5' }}>
-              <li>右上の「歯車マーク」から設定画面を開き、<strong>「テンプレートをコピー作成」</strong>ボタンをクリックして、ご自身のGoogleドライブにスプレッドシートを作成します。</li>
-              <li>作成した表の上部メニューから<strong>「拡張機能」＞「Apps Script」</strong>を選択します。</li>
-              <li>右上の青いボタン<strong>「デプロイ」＞「新しいデプロイ」</strong>を選択し、そのまま<strong>「デプロイ」</strong>を実行します（アクセス承認を求められた場合は許可してください）。</li>
-              <li>完了後に表示される<strong>「ウェブアプリのURL」</strong>をコピーします。</li>
-              <li>このアプリの設定画面に戻り、「Google Apps Script Web API URL」の欄にコピーしたURLを貼り付けます。</li>
-            </ol>
-
-            <h4 style={{ fontSize: '1rem', marginBottom: '0.5rem', color: 'var(--primary-color)' }}>② 画像読み取り機能（OCR）の設定</h4>
-            <ol style={{ fontSize: '0.9rem', paddingLeft: '1.5rem', margin: 0, lineHeight: '1.5' }}>
-              <li>画像から文字を読み取るため、Google Cloud Platformにて「Cloud Vision API」を有効化します（一定の利用枠までは無料でご利用いただけます）。</li>
-              <li>認証情報画面から「APIキー」を作成し、文字列をコピーします。</li>
-              <li>このアプリの設定画面の「Google Cloud Vision API Key」の欄にコピーしたキーを貼り付けます。</li>
-            </ol>
           </section>
 
         </div>

@@ -94,6 +94,14 @@ function App() {
                 style={{ width: '100%', padding: '0.5rem' }}
               />
               <p style={{ fontSize: '0.8rem', opacity: 0.7, marginTop: '0.5rem' }}>画像のテキストを高精度に読み取るために使用します。</p>
+              <details style={{ fontSize: '0.85rem', marginTop: '0.5rem', backgroundColor: 'var(--bg-color)', padding: '0.5rem', borderRadius: '4px' }}>
+                <summary style={{ cursor: 'pointer', color: 'var(--primary-color)' }}>※取得手順を開く</summary>
+                <ol style={{ paddingLeft: '1.5rem', marginTop: '0.5rem', lineHeight: '1.5', margin: '0.5rem 0 0 0' }}>
+                  <li>Google Cloud Platformにて「Cloud Vision API」を有効化します（一定の利用枠までは無料でご利用いただけます）。</li>
+                  <li>認証情報画面から「APIキー」を作成し、文字列をコピーします。</li>
+                  <li>コピーしたキーを上の入力欄に貼り付けます。</li>
+                </ol>
+              </details>
             </div>
 
             <div style={{ marginBottom: '2rem' }}>
@@ -108,6 +116,15 @@ function App() {
                 style={{ width: '100%', padding: '0.5rem' }}
               />
               <p style={{ fontSize: '0.8rem', opacity: 0.7, marginTop: '0.5rem' }}>スプレッドシートとデータをやり取りするためのURLです。</p>
+              <details style={{ fontSize: '0.85rem', marginTop: '0.5rem', backgroundColor: 'var(--bg-color)', padding: '0.5rem', borderRadius: '4px' }}>
+                <summary style={{ cursor: 'pointer', color: 'var(--primary-color)' }}>※取得手順を開く</summary>
+                <ol style={{ paddingLeft: '1.5rem', marginTop: '0.5rem', lineHeight: '1.5', margin: '0.5rem 0 0 0' }}>
+                  <li>この画面下の「テンプレートをコピー作成」ボタンをクリックし、ご自身のドライブに表を作成します。</li>
+                  <li>作成した表の上部メニューから<strong>「拡張機能」＞「Apps Script」</strong>を選択します。</li>
+                  <li>右上の青いボタン<strong>「デプロイ」＞「新しいデプロイ」</strong>を選択し、そのまま<strong>「デプロイ」</strong>を実行します（承認画面が出たら許可してください）。</li>
+                  <li>完了後に表示される<strong>「ウェブアプリのURL」</strong>をコピーし、上の入力欄に貼り付けます。</li>
+                </ol>
+              </details>
             </div>
 
             <div style={{ marginBottom: '2rem', padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.05)', borderRadius: '8px', border: '1px dashed var(--primary-color)' }}>
