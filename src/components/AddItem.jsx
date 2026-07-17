@@ -55,18 +55,20 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
   const [akizukiCode, setAkizukiCode] = useState('');
   const [isFetchingAkizuki, setIsFetchingAkizuki] = useState(false);
 
-  const fetchAkizuki = async () => {
-    if (!akizukiCode.trim()) return;
+  const fetchAkizuki = async (codeToFetch, isAuto = false) => {
+    const targetCode = typeof codeToFetch === 'string' ? codeToFetch : akizukiCode;
+    if (!targetCode || !targetCode.trim()) return;
     if (!gasApiUrl || gasApiUrl.trim() === '') {
-      alert('エラー: 設定画面からGoogle Apps Script Web API URLを設定してください。');
+      if (!isAuto) alert('エラー: 設定画面からGoogle Apps Script Web API URLを設定してください。');
       return;
     }
     
     setIsFetchingAkizuki(true);
+    setAkizukiCode(targetCode);
     try {
       const response = await fetch(gasApiUrl, {
         method: 'POST',
-        body: JSON.stringify({ action: 'scrapeAkizuki', code: akizukiCode }),
+        body: JSON.stringify({ action: 'scrapeAkizuki', code: targetCode }),
         headers: { 'Content-Type': 'text/plain;charset=utf-8' }
       });
       const data = await response.json();
@@ -87,11 +89,11 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
         }));
         setAkizukiCode('');
       } else {
-        alert(data.message || '商品情報の取得に失敗しました。通販コードを確認してください。');
+        if (!isAuto) alert(data.message || '商品情報の取得に失敗しました。通販コードを確認してください。');
       }
     } catch (err) {
       console.error(err);
-      alert('通信エラーが発生しました。設定URLが正しいか確認してください。');
+      if (!isAuto) alert('通信エラーが発生しました。設定URLが正しいか確認してください。');
     } finally {
       setIsFetchingAkizuki(false);
     }
@@ -191,24 +193,36 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
       const extractedBlocks = [];
       const textAnnotations = result.responses?.[0]?.textAnnotations;
 
-      if (textAnnotations && textAnnotations.length > 1) {
-        // Skip the first element as it contains the full text
-        for (let i = 1; i < textAnnotations.length; i++) {
-          const annotation = textAnnotations[i];
-          const vertices = annotation.boundingPoly.vertices;
-          if (vertices && vertices.length === 4) {
-            // Calculate bounding box bounding rect
-            const xs = vertices.map(v => v.x || 0);
-            const ys = vertices.map(v => v.y || 0);
-            const x0 = Math.min(...xs);
-            const y0 = Math.min(...ys);
-            const x1 = Math.max(...xs);
-            const y1 = Math.max(...ys);
+      let foundAkizukiCode = null;
 
-            extractedBlocks.push({
-              text: annotation.description,
-              bbox: { x0, y0, x1, y1 }
-            });
+      if (textAnnotations && textAnnotations.length > 0) {
+        const fullText = textAnnotations[0].description;
+        // Akizuki code regex: [A-Z]-\d{5} or 1\d{5}
+        const akizukiRegex = /(?:^|\s|\[|【|「|:：)([A-Za-z]-\d{5}|1\d{5})(?:\s|\]|】|」|$)/;
+        const match = fullText.match(akizukiRegex);
+        if (match && match[1]) {
+          foundAkizukiCode = match[1];
+        }
+
+        if (textAnnotations.length > 1) {
+          // Skip the first element as it contains the full text
+          for (let i = 1; i < textAnnotations.length; i++) {
+            const annotation = textAnnotations[i];
+            const vertices = annotation.boundingPoly.vertices;
+            if (vertices && vertices.length === 4) {
+              // Calculate bounding box bounding rect
+              const xs = vertices.map(v => v.x || 0);
+              const ys = vertices.map(v => v.y || 0);
+              const x0 = Math.min(...xs);
+              const y0 = Math.min(...ys);
+              const x1 = Math.max(...xs);
+              const y1 = Math.max(...ys);
+
+              extractedBlocks.push({
+                text: annotation.description,
+                bbox: { x0, y0, x1, y1 }
+              });
+            }
           }
         }
       }
@@ -217,6 +231,8 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
       
       if (extractedBlocks.length === 0) {
         alert('テキストが検出されませんでした。別の画像をお試しください。');
+      } else if (foundAkizukiCode) {
+        fetchAkizuki(foundAkizukiCode, true);
       }
     } catch (err) {
       console.error('OCR Error:', err);
