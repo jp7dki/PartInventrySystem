@@ -67,6 +67,48 @@ function doPost(e) {
         sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
       }
       return createJsonResponse({ status: 'success', message: 'Headers synced successfully' });
+    } else if (action === 'scrapeAkizuki') {
+      const code = payload.code || '';
+      let parsedCode = code.trim().toUpperCase();
+      // 旧形式 (例: I-11634, P-00035) を新形式 (111634, 100035) に変換
+      if (/^[A-Z]-\d{5}$/.test(parsedCode)) {
+        parsedCode = '1' + parsedCode.substring(2);
+      }
+      
+      const url = `https://akizukidenshi.com/catalog/g/g${parsedCode}/`;
+      const options = {
+        'method': 'get',
+        'headers': {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        },
+        'muteHttpExceptions': true
+      };
+      
+      const response = UrlFetchApp.fetch(url, options);
+      if (response.getResponseCode() === 200) {
+        const html = response.getContentText("UTF-8");
+        const titleMatch = html.match(/<title>(.*?)<\/title>/);
+        if (titleMatch) {
+          let title = titleMatch[1];
+          if (title.includes('秋月電子通商')) {
+            let parts = title.split(':');
+            let partName = parts[0].trim();
+            let category = '';
+            if (parts.length > 1) {
+              category = parts[1].split('秋月電子通商')[0].trim();
+            }
+            return createJsonResponse({ 
+              status: 'success', 
+              data: { 
+                name: partName, 
+                category: category,
+                code: parsedCode
+              } 
+            });
+          }
+        }
+      }
+      return createJsonResponse({ status: 'error', message: '商品情報の取得に失敗しました。' });
     } else {
       return createJsonResponse({ status: 'error', message: 'Unknown action' });
     }

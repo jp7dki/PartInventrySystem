@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Camera, Upload, Loader2, CheckCircle2, Key } from 'lucide-react';
+import { Camera, Upload, Loader2, CheckCircle2, Key, Download } from 'lucide-react';
 
 const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [] }) => {
   const { t } = useTranslation();
@@ -51,6 +51,49 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
   const [focusedField, setFocusedField] = useState(null);
   const [submitStatus, setSubmitStatus] = useState(null);
   const [imgDim, setImgDim] = useState({ w: 0, h: 0, nw: 0, nh: 0 });
+  
+  const [akizukiCode, setAkizukiCode] = useState('');
+  const [isFetchingAkizuki, setIsFetchingAkizuki] = useState(false);
+
+  const fetchAkizuki = async () => {
+    if (!akizukiCode.trim()) return;
+    if (!gasApiUrl || gasApiUrl.trim() === '') {
+      alert('エラー: 設定画面からGoogle Apps Script Web API URLを設定してください。');
+      return;
+    }
+    
+    setIsFetchingAkizuki(true);
+    try {
+      const response = await fetch(gasApiUrl, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'scrapeAkizuki', code: akizukiCode }),
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+      });
+      const data = await response.json();
+      
+      if (data.status === 'success' && data.data) {
+        // Map to fields based on column names
+        const partNameId = columns.find(c => ['part number', '部品名', '商品名', '型番'].includes(c.id.toLowerCase()))?.id || 'Part number';
+        const categoryId = columns.find(c => ['category 1', 'category', 'カテゴリ', '分類'].includes(c.id.toLowerCase()))?.id || 'Category 1';
+        const supplierId = columns.find(c => ['supplier part number', '通販コード', '購入元コード', '秋月コード', '購入先'].includes(c.id.toLowerCase()))?.id || 'Supplier Part Number';
+        
+        setFormData(prev => ({
+          ...prev,
+          [partNameId]: data.data.name || prev[partNameId] || '',
+          [categoryId]: data.data.category || prev[categoryId] || '',
+          [supplierId]: data.data.code || prev[supplierId] || '',
+        }));
+        setAkizukiCode('');
+      } else {
+        alert(data.message || '商品情報の取得に失敗しました。通販コードを確認してください。');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('通信エラーが発生しました。設定URLが正しいか確認してください。');
+    } finally {
+      setIsFetchingAkizuki(false);
+    }
+  };
   
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
@@ -284,6 +327,34 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
       
       {/* Left side: Form */}
       <div>
+        
+        {/* Akizuki Auto-fetch box */}
+        <div style={{ marginBottom: '2rem', padding: '1rem', backgroundColor: 'var(--bg-color)', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
+          <h3 style={{ fontSize: '0.95rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Download size={16} /> 秋月電子から自動入力
+          </h3>
+          <p style={{ fontSize: '0.8rem', opacity: 0.8, marginBottom: '0.75rem', margin: 0 }}>通販コード（例：110035, P-00035）を入力して取得すると、部品名やカテゴリが自動で入力されます。</p>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <input 
+              type="text" 
+              placeholder="通販コード" 
+              value={akizukiCode}
+              onChange={e => setAkizukiCode(e.target.value)}
+              style={{ flex: 1, padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--glass-border)' }}
+            />
+            <button 
+              type="button" 
+              className="btn btn-outline" 
+              onClick={fetchAkizuki}
+              disabled={isFetchingAkizuki || !akizukiCode.trim()}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', whiteSpace: 'nowrap' }}
+            >
+              {isFetchingAkizuki ? <Loader2 size={16} className="spin" /> : <Download size={16} />}
+              取得
+            </button>
+          </div>
+        </div>
+
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
           <h2 className="mb-0">{t('manual_entry')}</h2>
         </div>
