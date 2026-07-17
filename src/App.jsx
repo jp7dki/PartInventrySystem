@@ -30,6 +30,7 @@ function App() {
     const saved = localStorage.getItem('COLUMNS_SETTINGS');
     return saved ? JSON.parse(saved) : defaultCols;
   });
+  const [newColumnName, setNewColumnName] = useState('');
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -152,9 +153,45 @@ function App() {
                           setColumns(newCols);
                         }}
                       >▼</button>
+                      {col.id !== 'ID' && (
+                        <button 
+                          type="button"
+                          className="btn-outline" 
+                          style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem', color: 'var(--danger-color)' }}
+                          title="削除"
+                          onClick={() => {
+                            if(window.confirm(`「${col.id}」列を削除しますか？`)) {
+                              setColumns(columns.filter(c => c.id !== col.id));
+                            }
+                          }}
+                        >✖</button>
+                      )}
                     </div>
                   </div>
                 ))}
+              </div>
+              
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+                <input 
+                  type="text" 
+                  placeholder="新しい列の名前..." 
+                  value={newColumnName}
+                  onChange={(e) => setNewColumnName(e.target.value)}
+                  style={{ flex: 1, padding: '0.5rem' }}
+                />
+                <button 
+                  type="button"
+                  className="btn-primary" 
+                  style={{ padding: '0.5rem 1rem' }}
+                  onClick={() => {
+                    const trimmed = newColumnName.trim();
+                    if (trimmed && !columns.find(c => c.id === trimmed)) {
+                      setColumns([...columns, { id: trimmed, visible: true }]);
+                      setNewColumnName('');
+                    }
+                  }}
+                  disabled={!newColumnName.trim()}
+                >追加</button>
               </div>
             </div>
 

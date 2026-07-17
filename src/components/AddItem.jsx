@@ -201,10 +201,20 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
     const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
     const generatedId = `ID-${dateStr}-${randomStr}`;
 
-    const payloadItem = {
-      ...formData,
-      'ID': generatedId
-    };
+    const payloadItem = { 'ID': generatedId };
+    if (columns && columns.length > 0) {
+      columns.forEach(c => {
+        if (c.id !== 'ID') {
+          payloadItem[c.id] = formData[c.id] || '';
+        }
+      });
+    } else {
+      // Fallback to existing formData if columns aren't loaded somehow
+      Object.assign(payloadItem, formData);
+    }
+    
+    // In case there are extra fields typed that weren't in columns
+    Object.assign(payloadItem, formData);
 
     if (!gasApiUrl || gasApiUrl.trim() === '') {
       setTimeout(() => {
@@ -293,7 +303,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
               <input
                 type={field === 'Qty' ? 'number' : 'text'}
                 list={autocompleteOptions[field] ? `${field}-list` : undefined}
-                value={formData[field]}
+                value={formData[field] || ''}
                 onChange={(e) => handleInputChange(field, e.target.value)}
                 onFocus={() => setFocusedField(field)}
                 style={{ 
