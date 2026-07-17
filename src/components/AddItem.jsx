@@ -197,11 +197,17 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
 
       if (textAnnotations && textAnnotations.length > 0) {
         const fullText = textAnnotations[0].description;
-        // Akizuki code regex: [A-Z]-\d{5} or 1\d{5}
-        const akizukiRegex = /(?:^|\s|\[|【|「|:：)([A-Za-z]-\d{5}|1\d{5})(?:\s|\]|】|」|$)/;
-        const match = fullText.match(akizukiRegex);
-        if (match && match[1]) {
-          foundAkizukiCode = match[1];
+        // Akizuki code regex: find all 6-digit numbers (or P-00035 format) and take the largest
+        const akizukiRegex = /\b([A-Za-z]-\d{5}|\d{6})\b/g;
+        const matches = [...fullText.matchAll(akizukiRegex)].map(m => m[1]);
+        if (matches.length > 0) {
+          // 複数の候補が見つかった場合、数値として最も大きいものを採用する
+          matches.sort((a, b) => {
+            const valA = parseInt(a.replace(/^[A-Za-z]-/, '1'), 10);
+            const valB = parseInt(b.replace(/^[A-Za-z]-/, '1'), 10);
+            return valB - valA; // 降順
+          });
+          foundAkizukiCode = matches[0];
         }
 
         if (textAnnotations.length > 1) {
