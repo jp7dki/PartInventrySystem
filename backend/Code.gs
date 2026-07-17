@@ -45,6 +45,16 @@ function doPost(e) {
     }
 
     if (action === 'add') {
+      // payload(item)のキーの中に、現在のヘッダーに存在しないものがあるか確認
+      const payloadKeys = Object.keys(item);
+      const newHeaders = payloadKeys.filter(key => !headers.includes(key));
+      
+      if (newHeaders.length > 0) {
+        headers = headers.concat(newHeaders);
+        // 1行目を新しいヘッダーで上書きする
+        sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      }
+
       const newRow = headers.map(header => item[header] || '');
       sheet.appendRow(newRow);
       return createJsonResponse({ status: 'success', message: 'Item added successfully' });
