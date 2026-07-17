@@ -30,75 +30,74 @@ const HelpModal = ({ onClose }) => {
           <section>
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', marginBottom: '0.5rem' }}>
               <Camera size={20} />
-              1. 部品を登録しよう！（部品追加）
+              1. 部品の登録方法
             </h3>
             <p style={{ fontSize: '0.95rem', margin: 0 }}>
-              電子工作の部品を買ってきたら、まずは登録しましょう。<br/>
-              <strong>「部品追加」</strong>のタブを開いて、カメラのマーク（画像を選択）を押すと、スマホのカメラで部品の袋のラベルを読み取ることができます。<br/>
-              読み取った文字を指でタップすると、自動で入力欄に入るので、キーボードで打たなくても簡単に登録できます！<br/>
-              もちろん、キーボードを使って自分で入力してもOKです。
+              <strong>「部品追加」</strong>のタブを開き、画像選択アイコン（カメラマーク）をクリックすると、デバイスのカメラや画像ファイルから部品のラベルを読み取ることができます。<br/>
+              読み取られたテキストを指やマウスでタップすると、入力フォームに自動で反映されるため、手入力を省くことができます。<br/>
+              もちろん、キーボードを使ってご自身で入力することも可能です。
             </p>
           </section>
 
           <section>
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', marginBottom: '0.5rem' }}>
               <Search size={20} />
-              2. 登録した部品を探そう！（在庫一覧）
+              2. 在庫の検索と一覧
             </h3>
             <p style={{ fontSize: '0.95rem', margin: 0 }}>
-              <strong>「在庫一覧」</strong>のタブでは、今まで登録した部品の一覧が見られます。<br/>
-              検索ボックスに文字を入れると、一瞬で部品を探し出せます。<br/>
-              たとえば、「LDO 3.3V」のように<strong>言葉と言葉の間にスペース（空白）を入れる</strong>と、「LDO」と「3.3V」の両方が含まれる部品だけを絞り込むことができます。<br/>
-              一覧の一番上にある名前（Qty など）をクリックすると、少ない順や多い順に並び替えることもできます。
+              <strong>「在庫一覧」</strong>のタブでは、登録した部品の一覧を確認できます。<br/>
+              検索ボックスにキーワードを入力することで、素早く部品を探し出せます。<br/>
+              「LDO 3.3V」のように<strong>複数のキーワードの間にスペースを入れる</strong>ことで、両方の条件を満たす部品を絞り込むこと（AND検索）が可能です。<br/>
+              また、一覧上部の項目名（Qty など）をクリックすると、昇順・降順での並び替えができます。
             </p>
           </section>
 
           <section>
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', marginBottom: '0.5rem' }}>
               <Settings size={20} />
-              3. 画面を使いやすくカスタマイズ！
+              3. 表示項目のカスタマイズ
             </h3>
             <p style={{ fontSize: '0.95rem', margin: 0 }}>
-              右上の<strong>歯車マーク（設定）</strong>を押すと、画面の見た目を自分好みに変えられます。<br/>
-              いらない項目は「✖」ボタンで消したり、チェックを外して隠したりできます。<br/>
-              逆に「棚の番号」など新しい項目を作りたいときは、一番下の入力欄に名前を入れて「追加」を押すだけでOKです。▲▼ボタンで順番も変えられます。
+              右上の<strong>歯車マーク（設定）</strong>から、画面の表示をカスタマイズできます。<br/>
+              不要な項目は「✖」ボタンで削除したり、チェックを外して非表示にすることができます。<br/>
+              新しい項目（列）を追加したい場合は、一番下の入力欄に名前を入れて「追加」を押してください。▲▼ボタンで表示順を変更することも可能です。
             </p>
           </section>
 
           <section>
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', marginBottom: '0.5rem' }}>
               <FileSpreadsheet size={20} />
-              4. データはどこに保存されるの？
+              4. データの保存先について
             </h3>
             <p style={{ fontSize: '0.95rem', margin: 0 }}>
-              登録したデータは、自動的にインターネット上の<strong>「Googleスプレッドシート（Excelのような表計算ソフト）」</strong>に保存されています。<br/>
-              スマホが壊れてもデータはGoogleに残っているので安心です！
+              登録したデータは、連携した<strong>「Googleスプレッドシート」</strong>に自動的に保存・同期されます。<br/>
+              万が一デバイスが故障しても、データはクラウド上に安全に保管されています。
             </p>
           </section>
 
           <section style={{ backgroundColor: 'var(--input-bg)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', marginBottom: '1rem' }}>
               <Key size={20} />
-              5. 最初の準備（ここが一番むずかしい！）
+              5. 初期設定（APIとスプレッドシートの連携）
             </h3>
             <p style={{ fontSize: '0.95rem', margin: 0, marginBottom: '1rem' }}>
-              このアプリを使うには、最初に「どこにデータを保存するか」と「カメラの人工知能のパスワード」を設定する必要があります。少し難しいので、大人の人に手伝ってもらっても大丈夫です！
+              本アプリを利用するためには、データの保存先となる「Googleスプレッドシート」と、画像読み取り機能を利用するための「Google Cloud Vision API」の設定が必要です。
             </p>
             
             <h4 style={{ fontSize: '1rem', marginBottom: '0.5rem', color: 'var(--primary-color)' }}>① データの保存先（スプレッドシート）の設定</h4>
             <ol style={{ fontSize: '0.9rem', paddingLeft: '1.5rem', marginBottom: '1.5rem', lineHeight: '1.5' }}>
-              <li>右上の「歯車マーク」から設定画面を開き、<strong>「テンプレートをコピー作成」</strong>ボタンを押して自分用の表を作ります。</li>
-              <li>開いた表の上のメニューから<strong>「拡張機能」＞「Apps Script」</strong>を選びます。</li>
-              <li>右上の青いボタン<strong>「デプロイ」＞「新しいデプロイ」</strong>を選び、そのまま<strong>「デプロイ」</strong>を押します（アクセスを承認する画面が出たら許可してください）。</li>
-              <li>最後に表示される<strong>「ウェブアプリのURL」</strong>をコピーします。</li>
-              <li>このアプリの設定画面の「Google Apps Script Web API URL」という場所に貼り付けます。</li>
+              <li>右上の「歯車マーク」から設定画面を開き、<strong>「テンプレートをコピー作成」</strong>ボタンをクリックして、ご自身のGoogleドライブにスプレッドシートを作成します。</li>
+              <li>作成した表の上部メニューから<strong>「拡張機能」＞「Apps Script」</strong>を選択します。</li>
+              <li>右上の青いボタン<strong>「デプロイ」＞「新しいデプロイ」</strong>を選択し、そのまま<strong>「デプロイ」</strong>を実行します（アクセス承認を求められた場合は許可してください）。</li>
+              <li>完了後に表示される<strong>「ウェブアプリのURL」</strong>をコピーします。</li>
+              <li>このアプリの設定画面に戻り、「Google Apps Script Web API URL」の欄にコピーしたURLを貼り付けます。</li>
             </ol>
 
-            <h4 style={{ fontSize: '1rem', marginBottom: '0.5rem', color: 'var(--primary-color)' }}>② カメラで文字を読むため（OCR）の設定</h4>
+            <h4 style={{ fontSize: '1rem', marginBottom: '0.5rem', color: 'var(--primary-color)' }}>② 画像読み取り機能（OCR）の設定</h4>
             <ol style={{ fontSize: '0.9rem', paddingLeft: '1.5rem', margin: 0, lineHeight: '1.5' }}>
-              <li>「Google Cloud Vision API」というGoogleの人工知能サービスに登録します（お小遣いは減りません！毎月たくさん無料で使えます）。</li>
-              <li>「APIキー」という専用のパスワードを作ってコピーします。</li>
-              <li>このアプリの設定画面の「Google Cloud Vision API Key」という場所に貼り付けます。</li>
+              <li>画像から文字を読み取るため、Google Cloud Platformにて「Cloud Vision API」を有効化します（一定の利用枠までは無料でご利用いただけます）。</li>
+              <li>認証情報画面から「APIキー」を作成し、文字列をコピーします。</li>
+              <li>このアプリの設定画面の「Google Cloud Vision API Key」の欄にコピーしたキーを貼り付けます。</li>
             </ol>
           </section>
 
@@ -106,7 +105,7 @@ const HelpModal = ({ onClose }) => {
 
         <div style={{ marginTop: '2rem', textAlign: 'center' }}>
           <button className="btn-primary" onClick={onClose} style={{ padding: '0.75rem 2rem' }}>
-            わかった！
+            閉じる
           </button>
         </div>
       </div>
