@@ -391,6 +391,17 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
       payloadItem[qtyKey] = evaluateMathExpression(payloadItem[qtyKey]);
     }
 
+    const pad = (n) => String(n).padStart(2, '0');
+    const d = new Date();
+    const nowStr = `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    
+    if (isUpdate) {
+      payloadItem['最終更新日'] = nowStr;
+    } else {
+      payloadItem['新規追加日'] = nowStr;
+      payloadItem['最終更新日'] = nowStr;
+    }
+
     if (!gasApiUrl || gasApiUrl.trim() === '') {
       setTimeout(() => {
         setSubmitStatus('success');
@@ -451,7 +462,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
 
   const defaultFields = ['Category 1', 'Category 2', 'Manufacturer', 'Part number', 'Qty', 'location 1', 'location 2', 'Note', 'Supplier Part Number'];
   const orderedFields = columns && columns.length > 0 
-    ? columns.filter(c => c.id !== 'ID').map(c => c.id)
+    ? columns.filter(c => c.id !== 'ID' && c.id !== '新規追加日' && c.id !== '最終更新日').map(c => c.id)
     : defaultFields;
 
   return (
