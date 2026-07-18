@@ -17,14 +17,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
     'Supplier Part Number': ''
   });
   
-  const [autocompleteOptions, setAutocompleteOptions] = useState({
-    'Category 1': [],
-    'Category 2': [],
-    'Manufacturer': [],
-    'location 1': [],
-    'location 2': []
-  });
-  
+  const [autocompleteOptions, setAutocompleteOptions] = useState({});
   const [dbItems, setDbItems] = useState([]);
 
   useEffect(() => {
@@ -33,20 +26,25 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
         .then(res => res.json())
         .then(data => {
           if (data.status === 'success' && data.data) {
-            const options = {
-              'Category 1': [...new Set(data.data.map(i => i['Category 1']).filter(Boolean))],
-              'Category 2': [...new Set(data.data.map(i => i['Category 2']).filter(Boolean))],
-              'Manufacturer': [...new Set(data.data.map(i => i['Manufacturer']).filter(Boolean))],
-              'location 1': [...new Set(data.data.map(i => i['location 1']).filter(Boolean))],
-              'location 2': [...new Set(data.data.map(i => i['location 2']).filter(Boolean))]
-            };
-            setAutocompleteOptions(options);
             setDbItems(data.data);
           }
         })
-        .catch(err => console.error('Failed to fetch autocomplete options:', err));
+        .catch(err => console.error('Failed to fetch data:', err));
     }
   }, [gasApiUrl]);
+  
+  useEffect(() => {
+    if (dbItems.length > 0 && columns.length > 0) {
+      const options = {};
+      columns.forEach(c => {
+        const lowerId = c.id.toLowerCase();
+        if (c.id !== 'ID' && !['qty', '数量', '個数', 'note', '備考', '仕様', 'リンク', 'url', 'データシート', 'datasheet', 'メモ', 'memo'].includes(lowerId)) {
+          options[c.id] = [...new Set(dbItems.map(i => i[c.id]).filter(Boolean))];
+        }
+      });
+      setAutocompleteOptions(options);
+    }
+  }, [dbItems, columns]);
   
   const [imageSrc, setImageSrc] = useState(null);
   const [ocrTextBlocks, setOcrTextBlocks] = useState([]);
@@ -490,8 +488,8 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
                 {field}
               </label>
               <input
-                type={field === 'Qty' ? 'number' : 'text'}
-                list={autocompleteOptions[field] ? `${field}-list` : undefined}
+                type={['qty', '数量', '個数'].includes(field.toLowerCase()) ? 'number' : 'text'}
+                list={autocompleteOptions[field] && autocompleteOptions[field].length > 0 ? `${field}-list` : undefined}
                 value={formData[field] || ''}
                 onChange={(e) => handleInputChange(field, e.target.value)}
                 onFocus={() => setFocusedField(field)}
