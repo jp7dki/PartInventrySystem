@@ -17,6 +17,20 @@ const InventoryList = ({ gasApiUrl, columns = [], onEditItem }) => {
   // Inline editing state
   const [editingQty, setEditingQty] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
+  const [autocompleteOptions, setAutocompleteOptions] = useState({});
+
+  useEffect(() => {
+    if (items.length > 0 && columns.length > 0) {
+      const options = {};
+      columns.forEach(c => {
+        const lowerId = c.id.toLowerCase();
+        if (c.id !== 'ID' && !['qty', '数量', '個数', 'note', '備考', '仕様', 'リンク', 'url', 'データシート', 'datasheet', 'メモ', 'memo', '新規追加日', '最終更新日'].includes(lowerId) && !lowerId.includes('date') && !lowerId.includes('日')) {
+          options[c.id] = [...new Set(items.map(i => i[c.id]).filter(Boolean))];
+        }
+      });
+      setAutocompleteOptions(options);
+    }
+  }, [items, columns]);
 
   const handleSort = (key) => {
     let direction = 'ascending';
@@ -303,11 +317,19 @@ const InventoryList = ({ gasApiUrl, columns = [], onEditItem }) => {
                   </label>
                   <input
                     type="text"
+                    list={autocompleteOptions[col] && autocompleteOptions[col].length > 0 ? `${col}-advanced-list` : undefined}
                     value={advancedFilters[col] || ''}
                     onChange={(e) => setAdvancedFilters(prev => ({ ...prev, [col]: e.target.value }))}
                     placeholder={`${col}で絞り込み...`}
                     style={{ padding: '0.4rem 0.75rem', fontSize: '0.9rem' }}
                   />
+                  {autocompleteOptions[col] && autocompleteOptions[col].length > 0 && (
+                    <datalist id={`${col}-advanced-list`}>
+                      {autocompleteOptions[col].map((opt, i) => (
+                        <option key={i} value={opt} />
+                      ))}
+                    </datalist>
+                  )}
                 </div>
               ))}
             </div>
