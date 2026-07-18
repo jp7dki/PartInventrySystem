@@ -125,7 +125,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
           ...prev,
           [partNameId]: data.data.name || prev[partNameId] || '',
           [categoryId]: data.data.category || prev[categoryId] || '',
-          [supplierId]: data.data.code || prev[supplierId] || '',
+          [supplierId]: targetCode || data.data.code || prev[supplierId] || '',
           [supplierNameId]: '秋月電子',
           [manufacturerId]: data.data.manufacturer || prev[manufacturerId] || '',
           [linkId]: data.data.link || prev[linkId] || '',
