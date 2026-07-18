@@ -343,6 +343,27 @@ const InventoryList = ({ gasApiUrl, columns = [] }) => {
                             {updatingId === item.ID ? <Loader2 size={16} className="lucide-spin" /> : (item[key] || '0')}
                           </div>
                         )
+                      ) : ['リンク', 'データシート', 'url', 'link', 'datasheet'].includes(key.toLowerCase()) ? (
+                        item[key] ? (
+                          <a 
+                            href={item[key]} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            style={{ 
+                              color: 'var(--primary-color)', 
+                              textDecoration: 'underline',
+                              display: 'inline-block',
+                              maxWidth: '150px',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              verticalAlign: 'middle'
+                            }}
+                            title={item[key]}
+                          >
+                            {item[key]}
+                          </a>
+                        ) : ''
                       ) : key.toLowerCase().includes('category') ? (
                         <span style={{ 
                           backgroundColor: 'rgba(59, 130, 246, 0.1)', 
