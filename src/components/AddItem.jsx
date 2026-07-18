@@ -78,6 +78,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
         const partNameId = columns.find(c => ['part number', '部品名', '商品名', '型番'].includes(c.id.toLowerCase()))?.id || 'Part number';
         const categoryId = columns.find(c => ['category 1', 'category', 'カテゴリ', '分類'].includes(c.id.toLowerCase()))?.id || 'Category 1';
         const supplierId = columns.find(c => ['supplier part number', '通販コード', '購入元コード', 'サプライヤコード'].includes(c.id.toLowerCase()))?.id || 'サプライヤコード';
+        const supplierNameId = columns.find(c => ['supplier', 'サプライヤ', '購入先', '仕入先'].includes(c.id.toLowerCase()))?.id || 'サプライヤ';
         const manufacturerId = columns.find(c => ['manufacturer', 'メーカー', '製造元'].includes(c.id.toLowerCase()))?.id || 'メーカー';
         const linkId = columns.find(c => ['link', 'リンク', 'url'].includes(c.id.toLowerCase()))?.id || 'リンク';
         const datasheetId = columns.find(c => ['datasheet', 'データシート'].includes(c.id.toLowerCase()))?.id || 'データシート';
@@ -88,6 +89,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
           [partNameId]: data.data.name || prev[partNameId] || '',
           [categoryId]: data.data.category || prev[categoryId] || '',
           [supplierId]: data.data.code || prev[supplierId] || '',
+          [supplierNameId]: '秋月電子',
           [manufacturerId]: data.data.manufacturer || prev[manufacturerId] || '',
           [linkId]: data.data.link || prev[linkId] || '',
           [datasheetId]: data.data.datasheet || prev[datasheetId] || '',
