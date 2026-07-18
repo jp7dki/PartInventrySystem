@@ -59,9 +59,42 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
   const [akizukiCode, setAkizukiCode] = useState('');
   const [isFetchingAkizuki, setIsFetchingAkizuki] = useState(false);
 
+  const loadExistingItem = (existingItem) => {
+    if (editItemId === existingItem.ID) return;
+    
+    setTimeout(() => {
+      const partNameId = columns.find(c => ['part number', '部品名', '商品名', '型番'].includes(c.id.toLowerCase()))?.id || 'Part number';
+      const name = existingItem[partNameId] || existingItem['ID'];
+      if (window.confirm(`「${name}」はすでに登録されています。既存のデータを読み込みますか？`)) {
+        setEditItemId(existingItem.ID);
+        setFormData(prev => {
+          const newData = { ...prev };
+          Object.keys(existingItem).forEach(k => {
+            if (k !== 'ID') {
+              newData[k] = existingItem[k] || '';
+            }
+          });
+          return newData;
+        });
+      }
+    }, 10);
+  };
+
   const fetchAkizuki = async (codeToFetch, isAuto = false) => {
     const targetCode = typeof codeToFetch === 'string' ? codeToFetch : akizukiCode;
     if (!targetCode || !targetCode.trim()) return;
+
+    // Check if targetCode already exists in dbItems
+    const supplierId = columns.find(c => ['supplier part number', '通販コード', '購入元コード', 'サプライヤコード'].includes(c.id.toLowerCase()))?.id || 'サプライヤコード';
+    const existingItem = dbItems.find(item => 
+      item[supplierId] && String(item[supplierId]).toLowerCase() === targetCode.trim().toLowerCase()
+    );
+
+    if (existingItem) {
+      loadExistingItem(existingItem);
+      setAkizukiCode(''); 
+      return;
+    }
     if (!gasApiUrl || gasApiUrl.trim() === '') {
       if (!isAuto) alert('エラー: 設定画面からGoogle Apps Script Web API URLを設定してください。');
       return;
@@ -117,6 +150,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
 
   const handleInputChange = (field, value) => {
     const partNameId = columns.find(c => ['part number', '部品名', '商品名', '型番'].includes(c.id.toLowerCase()))?.id || 'Part number';
+    const supplierId = columns.find(c => ['supplier part number', '通販コード', '購入元コード', 'サプライヤコード'].includes(c.id.toLowerCase()))?.id || 'サプライヤコード';
     
     if (field === partNameId) {
       if (value.trim() !== '') {
@@ -125,26 +159,20 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
           String(item[partNameId]).toLowerCase() === value.trim().toLowerCase()
         );
         
-        if (existingItem && editItemId !== existingItem.ID) {
-          setTimeout(() => {
-            if (window.confirm(`「${value}」はすでに登録されています。既存のデータを読み込みますか？`)) {
-              setEditItemId(existingItem.ID);
-              setFormData(prev => {
-                const newData = { ...prev };
-                Object.keys(existingItem).forEach(k => {
-                  if (k !== 'ID') {
-                    newData[k] = existingItem[k] || '';
-                  }
-                });
-                return newData;
-              });
-            }
-          }, 10);
-        } else if (!existingItem && editItemId) {
+        if (existingItem) {
+          loadExistingItem(existingItem);
+        } else if (editItemId) {
           setEditItemId(null);
         }
       } else {
         setEditItemId(null);
+      }
+    } else if (field === supplierId && value.trim() !== '') {
+      const existingItem = dbItems.find(item => 
+        item[supplierId] && String(item[supplierId]).toLowerCase() === value.trim().toLowerCase()
+      );
+      if (existingItem) {
+        loadExistingItem(existingItem);
       }
     }
     
