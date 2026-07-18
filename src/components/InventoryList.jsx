@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, Loader2 } from 'lucide-react';
+import { Search, Loader2, Filter, X, ChevronDown, ChevronUp } from 'lucide-react';
 
 const InventoryList = ({ gasApiUrl, columns = [] }) => {
   const { t } = useTranslation();
@@ -9,6 +9,10 @@ const InventoryList = ({ gasApiUrl, columns = [] }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
+  
+  // Advanced search state
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [advancedFilters, setAdvancedFilters] = useState({});
 
   const handleSort = (key) => {
     let direction = 'ascending';
@@ -56,19 +60,62 @@ const InventoryList = ({ gasApiUrl, columns = [] }) => {
     }
   };
 
-  // Cross-column incremental search with multi-keyword AND support
+  // Cross-column incremental search with multi-keyword AND support + Advanced filters
   const filteredItems = items.filter(item => {
-    if (!searchTerm.trim()) return true;
+    // 1. Check global search term
+    if (searchTerm.trim()) {
+      const terms = searchTerm.toLowerCase().trim().split(/\s+/);
+      const matchesGlobal = terms.every(term => 
+        Object.values(item).some(val => 
+          String(val).toLowerCase().includes(term)
+        )
+      );
+      if (!matchesGlobal) return false;
+    }
     
-    // Split search term by spaces to get individual keywords
-    const terms = searchTerm.toLowerCase().trim().split(/\s+/);
+    // 2. Check advanced filters
+    if (showAdvancedSearch) {
+      for (const [key, filterVal] of Object.entries(advancedFilters)) {
+        if (!filterVal || filterVal.trim() === '') continue;
+        
+        const itemVal = item[key] || '';
+        
+        if (key === 'Qty' || key === '数量') {
+          // Parse range for Qty. Format expected: "min-max" or ">min" or "<max" or exact "val"
+          // For simplicity, let's provide a text input that handles simple ranges or exact matches.
+          // Or even simpler: just simple text match for now unless we build specific min/max UI.
+          // Wait, user asked for "在庫数などを絞って". Let's support simple syntax like ">=10" or "10-20" or just use separate min/max state.
+          // To make it easy and robust, let's parse simple operators: ">10", "<=5", "10-20", or just plain number match.
+          const fStr = filterVal.trim();
+          const numVal = parseFloat(itemVal);
+          if (isNaN(numVal)) return false; // If item has no valid qty, it fails number filter
+          
+          if (fStr.includes('-')) {
+            const [min, max] = fStr.split('-').map(s => parseFloat(s.trim()));
+            if (!isNaN(min) && numVal < min) return false;
+            if (!isNaN(max) && numVal > max) return false;
+          } else if (fStr.startsWith('>=')) {
+            if (numVal < parseFloat(fStr.slice(2))) return false;
+          } else if (fStr.startsWith('<=')) {
+            if (numVal > parseFloat(fStr.slice(2))) return false;
+          } else if (fStr.startsWith('>')) {
+            if (numVal <= parseFloat(fStr.slice(1))) return false;
+          } else if (fStr.startsWith('<')) {
+            if (numVal >= parseFloat(fStr.slice(1))) return false;
+          } else {
+            // exact match
+            if (numVal !== parseFloat(fStr)) return false;
+          }
+        } else {
+          // Generic text include
+          if (!String(itemVal).toLowerCase().includes(filterVal.toLowerCase().trim())) {
+            return false;
+          }
+        }
+      }
+    }
     
-    // For every keyword, it must be found in at least one of the item's values (AND logic)
-    return terms.every(term => 
-      Object.values(item).some(val => 
-        String(val).toLowerCase().includes(term)
-      )
-    );
+    return true;
   });
 
   const sortedItems = [...filteredItems].sort((a, b) => {
@@ -110,16 +157,79 @@ const InventoryList = ({ gasApiUrl, columns = [] }) => {
   return (
     <div className="inventory-list-container">
       <div className="search-bar mb-4">
-        <div style={{ position: 'relative' }}>
-          <Search style={{ position: 'absolute', top: '12px', left: '12px', opacity: 0.5 }} size={20} />
-          <input 
-            type="text" 
-            placeholder={t('search_placeholder')}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ paddingLeft: '40px' }}
-          />
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div style={{ position: 'relative', flex: 1 }}>
+            <Search style={{ position: 'absolute', top: '12px', left: '12px', opacity: 0.5 }} size={20} />
+            <input 
+              type="text" 
+              placeholder={t('search_placeholder')}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ paddingLeft: '40px' }}
+            />
+          </div>
+          <button 
+            className={`btn-outline ${showAdvancedSearch ? 'active' : ''}`}
+            onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
+            style={{ 
+              display: 'flex', alignItems: 'center', gap: '0.5rem', 
+              padding: '0 1rem', borderRadius: '8px',
+              backgroundColor: showAdvancedSearch ? 'var(--primary-color)' : 'transparent',
+              color: showAdvancedSearch ? 'white' : 'var(--text-color)',
+              borderColor: showAdvancedSearch ? 'var(--primary-color)' : 'var(--glass-border)',
+              transition: 'all 0.2s'
+            }}
+            title="詳細検索"
+          >
+            <Filter size={18} />
+            <span style={{ display: window.innerWidth > 600 ? 'inline' : 'none' }}>詳細検索</span>
+          </button>
         </div>
+        
+        {/* Advanced Search Panel */}
+        {showAdvancedSearch && (
+          <div style={{ 
+            marginTop: '1rem', padding: '1.5rem', 
+            backgroundColor: 'var(--bg-color)', 
+            borderRadius: '8px', border: '1px solid var(--glass-border)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+            animation: 'fadeIn 0.2s ease-out'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ fontSize: '1rem', margin: 0, color: 'var(--primary-color)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Filter size={16} /> 詳細検索フィルター
+              </h3>
+              <button 
+                className="btn-outline" 
+                style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem', border: 'none' }}
+                onClick={() => {
+                  setAdvancedFilters({});
+                  setShowAdvancedSearch(false);
+                }}
+              >
+                クリアして閉じる <X size={14} style={{ display: 'inline', verticalAlign: 'middle' }} />
+              </button>
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
+              {finalVisibleColumns.map(col => (
+                <div key={col}>
+                  <label style={{ display: 'block', fontSize: '0.8rem', marginBottom: '0.25rem', opacity: 0.8 }}>
+                    {col}
+                    {(col === 'Qty' || col === '数量') && <span style={{ fontSize: '0.7rem', opacity: 0.6, marginLeft: '0.25rem' }}>(例: &gt;=10, 1-5)</span>}
+                  </label>
+                  <input
+                    type="text"
+                    value={advancedFilters[col] || ''}
+                    onChange={(e) => setAdvancedFilters(prev => ({ ...prev, [col]: e.target.value }))}
+                    placeholder={`${col}で絞り込み...`}
+                    style={{ padding: '0.4rem 0.75rem', fontSize: '0.9rem' }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {loading ? (
