@@ -54,6 +54,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
   const [focusedField, setFocusedField] = useState(null);
   const [submitStatus, setSubmitStatus] = useState(null);
   const [imgDim, setImgDim] = useState({ w: 0, h: 0, nw: 0, nh: 0 });
+  const [editItemId, setEditItemId] = useState(null);
   
   const [akizukiCode, setAkizukiCode] = useState('');
   const [isFetchingAkizuki, setIsFetchingAkizuki] = useState(false);
@@ -115,34 +116,39 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
   const imageRef = useRef(null);
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => {
-      const nextData = { ...prev, [field]: value };
-      
-      const partNameId = columns.find(c => ['part number', '部品名', '商品名', '型番'].includes(c.id.toLowerCase()))?.id || 'Part number';
-      
-      if (field === partNameId && value.trim() !== '') {
+    const partNameId = columns.find(c => ['part number', '部品名', '商品名', '型番'].includes(c.id.toLowerCase()))?.id || 'Part number';
+    
+    if (field === partNameId) {
+      if (value.trim() !== '') {
         const existingItem = dbItems.find(item => 
           item[partNameId] && 
           String(item[partNameId]).toLowerCase() === value.trim().toLowerCase()
         );
         
-        if (existingItem) {
-          const qtyId = columns.find(c => ['qty', '数量', '個数'].includes(c.id.toLowerCase()))?.id || 'Qty';
-          const loc1Id = columns.find(c => ['location 1', '保管場所1', '場所'].includes(c.id.toLowerCase()))?.id || 'location 1';
-          const loc2Id = columns.find(c => ['location 2', '保管場所2'].includes(c.id.toLowerCase()))?.id || 'location 2';
-          
-          Object.keys(existingItem).forEach(k => {
-            if (k !== 'ID' && k !== partNameId && k !== qtyId && k !== loc1Id && k !== loc2Id) {
-              if (!nextData[k] && existingItem[k]) {
-                nextData[k] = existingItem[k];
-              }
+        if (existingItem && editItemId !== existingItem.ID) {
+          setTimeout(() => {
+            if (window.confirm(`「${value}」はすでに登録されています。既存のデータを読み込みますか？`)) {
+              setEditItemId(existingItem.ID);
+              setFormData(prev => {
+                const newData = { ...prev };
+                Object.keys(existingItem).forEach(k => {
+                  if (k !== 'ID') {
+                    newData[k] = existingItem[k] || '';
+                  }
+                });
+                return newData;
+              });
             }
-          });
+          }, 10);
+        } else if (!existingItem && editItemId) {
+          setEditItemId(null);
         }
+      } else {
+        setEditItemId(null);
       }
-      
-      return nextData;
-    });
+    }
+    
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleImageSelect = async (e) => {
@@ -304,11 +310,19 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (editItemId) {
+      if (!window.confirm('すでに登録されている部品の情報を上書き更新します。よろしいですか？\n※「数量」などの入力値で完全に上書きされます。')) {
+        return;
+      }
+    }
+    
     setSubmitStatus('submitting');
     
+    const isUpdate = !!editItemId;
     const dateStr = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
     const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
-    const generatedId = `ID-${dateStr}-${randomStr}`;
+    const generatedId = isUpdate ? editItemId : `ID-${dateStr}-${randomStr}`;
 
     const payloadItem = { 'ID': generatedId };
     if (columns && columns.length > 0) {
@@ -318,7 +332,6 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
         }
       });
     } else {
-      // Fallback to existing formData if columns aren't loaded somehow
       Object.assign(payloadItem, formData);
     }
     
@@ -337,7 +350,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
 
     try {
       const payload = {
-        action: 'add',
+        action: isUpdate ? 'update' : 'add',
         item: payloadItem
       };
       
@@ -455,16 +468,16 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
             type="submit" 
             className="btn mt-4" 
             disabled={submitStatus === 'submitting' || submitStatus === 'success'}
-            style={{ width: '100%', padding: '0.75rem' }}
+            style={{ width: '100%', padding: '0.75rem', backgroundColor: editItemId ? 'var(--success-color)' : 'var(--primary-color)' }}
           >
             {submitStatus === 'submitting' ? <Loader2 className="lucide-spin" size={18} /> : 
              submitStatus === 'success' ? <CheckCircle2 size={18} /> : 
-             t('btn_add')}
+             (editItemId ? '上書き更新する' : t('btn_add'))}
           </button>
           
           {submitStatus === 'success' && (
             <div style={{ color: 'var(--success-color)', textAlign: 'center', marginTop: '0.5rem' }}>
-              {t('success_add')}
+              {editItemId ? '情報を上書き更新しました！' : t('success_add')}
             </div>
           )}
           {submitStatus === 'error' && (
