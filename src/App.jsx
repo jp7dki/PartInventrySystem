@@ -29,12 +29,23 @@ function App() {
     { id: 'サプライヤ', visible: true },
     { id: 'データシート', visible: true },
     { id: 'リンク', visible: true },
-    { id: 'メモ', visible: true }
+    { id: 'メモ', visible: true },
+    { id: '最終更新日', visible: false },
+    { id: '新規追加日', visible: false }
   ];
 
   const [columns, setColumns] = useState(() => {
     const saved = localStorage.getItem('COLUMNS_SETTINGS_V2');
-    return saved ? JSON.parse(saved) : defaultCols;
+    if (saved) {
+      let parsed = JSON.parse(saved);
+      defaultCols.forEach(dc => {
+        if (!parsed.find(p => p.id === dc.id)) {
+          parsed.push(dc);
+        }
+      });
+      return parsed;
+    }
+    return defaultCols;
   });
 
   useEffect(() => {
