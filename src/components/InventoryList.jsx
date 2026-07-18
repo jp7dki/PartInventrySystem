@@ -66,13 +66,28 @@ const InventoryList = ({ gasApiUrl, columns = [] }) => {
 
   const updateQuantity = async (item, qtyKey, newQty) => {
     if (!gasApiUrl) return;
-    if (String(item[qtyKey]) === String(newQty)) {
+    
+    const evaluateMathExpression = (expr) => {
+      if (typeof expr !== 'string') return expr;
+      let normalized = expr.replace(/＋/g, '+').replace(/－/g, '-').replace(/ー/g, '-').trim();
+      try {
+        if (/^[-+\d\s.]+$/.test(normalized)) {
+          const sum = new Function(`return ${normalized}`)();
+          if (!isNaN(sum)) return sum.toString();
+        }
+      } catch(e) {}
+      return expr;
+    };
+    
+    const evaluatedQty = evaluateMathExpression(newQty);
+    
+    if (String(item[qtyKey]) === String(evaluatedQty)) {
       setEditingQty(null);
       return;
     }
     
     setUpdatingId(item.ID);
-    const updatedItem = { ...item, [qtyKey]: newQty };
+    const updatedItem = { ...item, [qtyKey]: evaluatedQty };
     
     try {
       const response = await fetch(gasApiUrl, {
@@ -308,7 +323,7 @@ const InventoryList = ({ gasApiUrl, columns = [] }) => {
                       {['qty', '数量', '個数'].includes(key.toLowerCase()) ? (
                         editingQty?.rowId === item.ID && editingQty?.key === key ? (
                           <input 
-                            type="number"
+                            type="text"
                             value={editingQty.value}
                             autoFocus
                             onChange={e => setEditingQty({ ...editingQty, value: e.target.value })}

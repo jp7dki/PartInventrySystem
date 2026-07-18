@@ -374,6 +374,23 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
     // In case there are extra fields typed that weren't in columns
     Object.assign(payloadItem, formData);
 
+    const evaluateMathExpression = (expr) => {
+      if (typeof expr !== 'string') return expr;
+      let normalized = expr.replace(/＋/g, '+').replace(/－/g, '-').replace(/ー/g, '-').trim();
+      try {
+        if (/^[-+\d\s.]+$/.test(normalized)) {
+          const sum = new Function(`return ${normalized}`)();
+          if (!isNaN(sum)) return sum.toString();
+        }
+      } catch(e) {}
+      return expr;
+    };
+
+    const qtyKey = Object.keys(payloadItem).find(k => ['qty', '数量', '個数'].includes(k.toLowerCase()));
+    if (qtyKey && payloadItem[qtyKey]) {
+      payloadItem[qtyKey] = evaluateMathExpression(payloadItem[qtyKey]);
+    }
+
     if (!gasApiUrl || gasApiUrl.trim() === '') {
       setTimeout(() => {
         setSubmitStatus('success');
@@ -488,7 +505,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
                 {field}
               </label>
               <input
-                type={['qty', '数量', '個数'].includes(field.toLowerCase()) ? 'number' : 'text'}
+                type="text"
                 list={autocompleteOptions[field] && autocompleteOptions[field].length > 0 ? `${field}-list` : undefined}
                 value={formData[field] || ''}
                 onChange={(e) => handleInputChange(field, e.target.value)}
