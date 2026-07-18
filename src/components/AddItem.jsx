@@ -359,10 +359,10 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
     : defaultFields;
 
   return (
-    <div className="add-item-container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+    <div className="add-item-container">
       
       {/* Left side: Form */}
-      <div>
+      <div className="add-item-left">
         
         {/* Akizuki Auto-fetch box */}
         <div style={{ marginBottom: '2rem', padding: '1rem', backgroundColor: 'var(--bg-color)', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
@@ -446,7 +446,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
       </div>
 
       {/* Right side: OCR & Camera */}
-      <div style={{ borderLeft: '1px solid var(--glass-border)', paddingLeft: '2rem' }}>
+      <div className="add-item-right">
         <h2 className="mb-4">OCR Scan</h2>
         <p style={{ opacity: 0.7, marginBottom: '1.5rem', fontSize: '0.9rem' }}>{t('camera_instruction')}</p>
         
