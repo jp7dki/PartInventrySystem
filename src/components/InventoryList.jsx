@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, Loader2, Filter, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, Loader2, Filter, X, ChevronDown, ChevronUp, Edit2 } from 'lucide-react';
 
-const InventoryList = ({ gasApiUrl, columns = [] }) => {
+const InventoryList = ({ gasApiUrl, columns = [], onEditItem }) => {
   const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -344,6 +344,7 @@ const InventoryList = ({ gasApiUrl, columns = [] }) => {
                     </div>
                   </th>
                 ))}
+                <th style={{ padding: '1rem', color: 'var(--primary-color)', whiteSpace: 'nowrap' }}>操作</th>
               </tr>
             </thead>
             <tbody>
@@ -426,6 +427,16 @@ const InventoryList = ({ gasApiUrl, columns = [] }) => {
                       )}
                     </td>
                   ))}
+                  <td style={{ padding: '1rem', textAlign: 'center' }}>
+                    <button
+                      className="btn-outline"
+                      style={{ padding: '0.4rem', border: 'none', color: 'var(--primary-color)', borderRadius: '4px' }}
+                      onClick={() => onEditItem && onEditItem(item)}
+                      title="詳細編集"
+                    >
+                      <Edit2 size={16} />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

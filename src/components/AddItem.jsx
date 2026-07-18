@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Camera, Upload, Loader2, CheckCircle2, Key, Download } from 'lucide-react';
 
-const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [] }) => {
+const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [], itemToEdit, onCancelEdit }) => {
   const { t } = useTranslation();
   
   const [formData, setFormData] = useState({
@@ -56,6 +56,28 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
   
   const [akizukiCode, setAkizukiCode] = useState('');
   const [isFetchingAkizuki, setIsFetchingAkizuki] = useState(false);
+
+  useEffect(() => {
+    if (itemToEdit) {
+      setEditItemId(itemToEdit.ID);
+      setFormData(prev => {
+        const newData = { ...prev };
+        Object.keys(itemToEdit).forEach(k => {
+          if (k !== 'ID') {
+            newData[k] = itemToEdit[k] || '';
+          }
+        });
+        return newData;
+      });
+    } else {
+      setEditItemId(null);
+      setFormData(prev => {
+        const newData = {};
+        Object.keys(prev).forEach(k => newData[k] = '');
+        return newData;
+      });
+    }
+  }, [itemToEdit]);
 
   const loadExistingItem = (existingItem) => {
     if (editItemId === existingItem.ID) return;
@@ -528,16 +550,36 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
             </div>
           ))}
 
-          <button 
-            type="submit" 
-            className="btn mt-4" 
-            disabled={submitStatus === 'submitting' || submitStatus === 'success'}
-            style={{ width: '100%', padding: '0.75rem', backgroundColor: editItemId ? 'var(--success-color)' : 'var(--primary-color)' }}
-          >
-            {submitStatus === 'submitting' ? <Loader2 className="lucide-spin" size={18} /> : 
-             submitStatus === 'success' ? <CheckCircle2 size={18} /> : 
-             (editItemId ? '上書き更新する' : t('btn_add'))}
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+            <button 
+              type="submit" 
+              className="btn" 
+              disabled={submitStatus === 'submitting' || submitStatus === 'success'}
+              style={{ flex: 1, padding: '0.75rem', backgroundColor: editItemId ? 'var(--success-color)' : 'var(--primary-color)' }}
+            >
+              {submitStatus === 'submitting' ? <Loader2 className="lucide-spin" size={18} /> : 
+               submitStatus === 'success' ? <CheckCircle2 size={18} /> : 
+               (editItemId ? '上書き更新する' : t('btn_add'))}
+            </button>
+            {editItemId && (
+              <button
+                type="button"
+                className="btn btn-outline"
+                onClick={() => {
+                  setEditItemId(null);
+                  if (onCancelEdit) onCancelEdit();
+                  setFormData(prev => {
+                    const newData = {};
+                    Object.keys(prev).forEach(k => newData[k] = '');
+                    return newData;
+                  });
+                }}
+                style={{ padding: '0.75rem', whiteSpace: 'nowrap' }}
+              >
+                キャンセル
+              </button>
+            )}
+          </div>
           
           {submitStatus === 'success' && (
             <div style={{ color: 'var(--success-color)', textAlign: 'center', marginTop: '0.5rem' }}>

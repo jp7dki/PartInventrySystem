@@ -9,6 +9,7 @@ function App() {
   const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState('list');
   const [theme, setTheme] = useState('light');
+  const [itemToEdit, setItemToEdit] = useState(null);
   
   const [showSettings, setShowSettings] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
@@ -248,23 +249,40 @@ function App() {
         </button>
         <button 
           className={`tab ${activeTab === 'add' ? 'active' : ''}`}
-          onClick={() => setActiveTab('add')}
+          onClick={() => {
+            setActiveTab('add');
+            setItemToEdit(null);
+          }}
         >
-          {t('tab_add')}
+          {t('tab_add')} {itemToEdit ? '(編集)' : ''}
         </button>
       </div>
 
       <main className="glass-panel">
-        {activeTab === 'list' 
-          ? <InventoryList gasApiUrl={gasApiUrl} columns={columns} /> 
-          : <AddItem 
-              onAdded={() => setActiveTab('list')} 
-              visionApiKey={visionApiKey} 
-              gasApiUrl={gasApiUrl}
-              onOpenSettings={() => setShowSettings(true)}
-              columns={columns}
-            />
-        }
+        {activeTab === 'list' && (
+          <InventoryList 
+            gasApiUrl={gasApiUrl} 
+            columns={columns} 
+            onEditItem={(item) => {
+              setItemToEdit(item);
+              setActiveTab('add');
+            }}
+          />
+        )}
+        {activeTab === 'add' && (
+          <AddItem 
+            onAdded={() => {
+              setActiveTab('list');
+              setItemToEdit(null);
+            }} 
+            visionApiKey={visionApiKey}
+            gasApiUrl={gasApiUrl}
+            onOpenSettings={() => setShowSettings(true)}
+            columns={columns}
+            itemToEdit={itemToEdit}
+            onCancelEdit={() => setItemToEdit(null)}
+          />
+        )}
       </main>
 
       {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
