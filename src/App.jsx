@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Globe, Moon, Sun, Settings, HelpCircle } from 'lucide-react';
+import { Moon, Sun, Settings, HelpCircle } from 'lucide-react';
 import InventoryList from './components/InventoryList';
 import AddItem from './components/AddItem';
 import HelpModal from './components/HelpModal';
@@ -43,11 +43,6 @@ function App() {
 
   const toggleTheme = () => {
     setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
-  };
-
-  const toggleLanguage = () => {
-    const newLang = i18n.language === 'ja' ? 'en' : 'ja';
-    i18n.changeLanguage(newLang);
   };
 
   const saveSettings = () => {
@@ -216,7 +211,10 @@ function App() {
       )}
 
       <header className="glass-panel">
-        <h1>{t('app_title')}</h1>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <h1 style={{ marginBottom: '0.2rem' }}>ちっぷするん</h1>
+          <span style={{ fontSize: '0.85rem', opacity: 0.8, fontWeight: 500 }}>電子部品管理システム</span>
+        </div>
         <div className="header-controls">
           <button className="btn btn-outline" onClick={() => setShowHelp(true)} title="使い方">
             <HelpCircle size={18} />
@@ -226,10 +224,6 @@ function App() {
           </button>
           <button className="btn btn-outline" onClick={toggleTheme} title={t('theme_toggle')}>
             {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
-          </button>
-          <button className="btn btn-outline" onClick={toggleLanguage} title={t('lang_toggle')}>
-            <Globe size={18} />
-            {t('lang_toggle')}
           </button>
         </div>
       </header>
