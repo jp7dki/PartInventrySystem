@@ -13,6 +13,10 @@ const InventoryList = ({ gasApiUrl, columns = [] }) => {
   // Advanced search state
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [advancedFilters, setAdvancedFilters] = useState({});
+  
+  // Inline editing state
+  const [editingQty, setEditingQty] = useState(null);
+  const [updatingId, setUpdatingId] = useState(null);
 
   const handleSort = (key) => {
     let direction = 'ascending';
@@ -57,6 +61,37 @@ const InventoryList = ({ gasApiUrl, columns = [] }) => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const updateQuantity = async (item, qtyKey, newQty) => {
+    if (!gasApiUrl) return;
+    if (String(item[qtyKey]) === String(newQty)) {
+      setEditingQty(null);
+      return;
+    }
+    
+    setUpdatingId(item.ID);
+    const updatedItem = { ...item, [qtyKey]: newQty };
+    
+    try {
+      const response = await fetch(gasApiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'update', item: updatedItem })
+      });
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        setItems(prev => prev.map(i => i.ID === item.ID ? updatedItem : i));
+      } else {
+        alert('エラー: ' + data.message);
+      }
+    } catch (err) {
+      alert('通信エラーが発生しました。設定URLを確認してください。');
+    } finally {
+      setUpdatingId(null);
+      setEditingQty(null);
     }
   };
 
@@ -270,7 +305,45 @@ const InventoryList = ({ gasApiUrl, columns = [] }) => {
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
                   {finalVisibleColumns.map((key) => (
                     <td key={key} style={{ padding: '1rem', whiteSpace: key.includes('Note') ? 'normal' : 'nowrap' }}>
-                      {key.toLowerCase().includes('category') ? (
+                      {['qty', '数量', '個数'].includes(key.toLowerCase()) ? (
+                        editingQty?.rowId === item.ID && editingQty?.key === key ? (
+                          <input 
+                            type="number"
+                            value={editingQty.value}
+                            autoFocus
+                            onChange={e => setEditingQty({ ...editingQty, value: e.target.value })}
+                            onBlur={() => updateQuantity(item, key, editingQty.value)}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter') updateQuantity(item, key, editingQty.value);
+                              if (e.key === 'Escape') setEditingQty(null);
+                            }}
+                            style={{ width: '80px', padding: '0.25rem', border: '1px solid var(--primary-color)', borderRadius: '4px', backgroundColor: 'var(--bg-color)', color: 'var(--text-color)' }}
+                            disabled={updatingId === item.ID}
+                          />
+                        ) : (
+                          <div 
+                            style={{ 
+                              cursor: 'pointer', 
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: '0.25rem 0.75rem', 
+                              backgroundColor: 'rgba(59, 130, 246, 0.1)', 
+                              border: '1px solid rgba(59, 130, 246, 0.3)',
+                              borderRadius: '4px',
+                              minWidth: '3rem',
+                              opacity: updatingId === item.ID ? 0.5 : 1,
+                              transition: 'all 0.2s'
+                            }}
+                            onClick={() => setEditingQty({ rowId: item.ID, key, value: item[key] || '' })}
+                            title="クリックして数量を変更"
+                            onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.2)'}
+                            onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.1)'}
+                          >
+                            {updatingId === item.ID ? <Loader2 size={16} className="lucide-spin" /> : (item[key] || '0')}
+                          </div>
+                        )
+                      ) : key.toLowerCase().includes('category') ? (
                         <span style={{ 
                           backgroundColor: 'rgba(59, 130, 246, 0.1)', 
                           padding: '0.25rem 0.75rem', 
