@@ -24,6 +24,8 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
     'location 1': [],
     'location 2': []
   });
+  
+  const [dbItems, setDbItems] = useState([]);
 
   useEffect(() => {
     if (gasApiUrl && gasApiUrl.trim() !== '') {
@@ -39,6 +41,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
               'location 2': [...new Set(data.data.map(i => i['location 2']).filter(Boolean))]
             };
             setAutocompleteOptions(options);
+            setDbItems(data.data);
           }
         })
         .catch(err => console.error('Failed to fetch autocomplete options:', err));
@@ -112,7 +115,34 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
   const imageRef = useRef(null);
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => {
+      const nextData = { ...prev, [field]: value };
+      
+      const partNameId = columns.find(c => ['part number', '部品名', '商品名', '型番'].includes(c.id.toLowerCase()))?.id || 'Part number';
+      
+      if (field === partNameId && value.trim() !== '') {
+        const existingItem = dbItems.find(item => 
+          item[partNameId] && 
+          String(item[partNameId]).toLowerCase() === value.trim().toLowerCase()
+        );
+        
+        if (existingItem) {
+          const qtyId = columns.find(c => ['qty', '数量', '個数'].includes(c.id.toLowerCase()))?.id || 'Qty';
+          const loc1Id = columns.find(c => ['location 1', '保管場所1', '場所'].includes(c.id.toLowerCase()))?.id || 'location 1';
+          const loc2Id = columns.find(c => ['location 2', '保管場所2'].includes(c.id.toLowerCase()))?.id || 'location 2';
+          
+          Object.keys(existingItem).forEach(k => {
+            if (k !== 'ID' && k !== partNameId && k !== qtyId && k !== loc1Id && k !== loc2Id) {
+              if (!nextData[k] && existingItem[k]) {
+                nextData[k] = existingItem[k];
+              }
+            }
+          });
+        }
+      }
+      
+      return nextData;
+    });
   };
 
   const handleImageSelect = async (e) => {
