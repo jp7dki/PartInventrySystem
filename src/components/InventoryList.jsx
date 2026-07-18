@@ -99,11 +99,12 @@ const InventoryList = ({ gasApiUrl, columns = [] }) => {
     // Start with the user's custom ordered, visible columns (explicitly filter out ID just in case)
     const customVisibleKeys = columns.filter(c => c.visible && c.id !== 'ID').map(c => c.id);
     
-    // Find any new keys from the data that are NOT in the settings at all, and append them just in case
-    const unknownKeys = itemKeys.filter(k => k !== 'ID' && !columns.find(c => c.id === k));
-    
-    // Merge them and ensure they actually exist in the data
-    finalVisibleColumns = [...customVisibleKeys, ...unknownKeys].filter(k => itemKeys.includes(k));
+    // Ensure they actually exist in the data (or at least filter them if you want, but even if they don't exist, we can render empty cells)
+    // Actually, if we just use customVisibleKeys, empty columns will just render empty which is fine.
+    // Let's filter to only those that exist in the data, just to avoid completely blank columns if the backend doesn't return them, 
+    // OR we can just use customVisibleKeys directly so the fixed schema is ALWAYS respected.
+    // Given the user wants fixed columns, let's just use customVisibleKeys directly.
+    finalVisibleColumns = customVisibleKeys;
   }
 
   return (
