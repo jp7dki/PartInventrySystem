@@ -16,23 +16,26 @@ function App() {
   const [gasApiUrl, setGasApiUrl] = useState(localStorage.getItem('GAS_API_URL') || '');
   
   const defaultCols = [
-    { id: 'Category 1', visible: true },
-    { id: 'Category 2', visible: true },
-    { id: 'Manufacturer', visible: true },
-    { id: 'Part number', visible: true },
-    { id: 'Qty', visible: true },
+    { id: 'ID', visible: false },
+    { id: '型番', visible: true },
+    { id: 'メーカー', visible: true },
+    { id: '数量', visible: true },
+    { id: 'カテゴリ1', visible: true },
+    { id: 'カテゴリ2', visible: true },
     { id: 'location 1', visible: true },
     { id: 'location 2', visible: true },
     { id: 'Note', visible: true },
-    { id: 'Supplier Part Number', visible: true },
-    { id: 'ID', visible: false }
+    { id: 'サプライヤコード', visible: true },
+    { id: 'サプライヤ', visible: true },
+    { id: 'データシート', visible: true },
+    { id: 'リンク', visible: true },
+    { id: 'メモ', visible: true }
   ];
 
   const [columns, setColumns] = useState(() => {
-    const saved = localStorage.getItem('COLUMNS_SETTINGS');
+    const saved = localStorage.getItem('COLUMNS_SETTINGS_V2');
     return saved ? JSON.parse(saved) : defaultCols;
   });
-  const [newColumnName, setNewColumnName] = useState('');
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -52,7 +55,7 @@ function App() {
     const trimmedGasUrl = gasApiUrl.trim();
     localStorage.setItem('VISION_API_KEY', trimmedVisionKey);
     localStorage.setItem('GAS_API_URL', trimmedGasUrl);
-    localStorage.setItem('COLUMNS_SETTINGS', JSON.stringify(columns));
+    localStorage.setItem('COLUMNS_SETTINGS_V2', JSON.stringify(columns));
     setVisionApiKey(trimmedVisionKey);
     setGasApiUrl(trimmedGasUrl);
 
@@ -148,7 +151,10 @@ function App() {
                 一覧に表示する列と順番
               </label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '1rem', background: 'var(--input-bg)', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
-                {columns.map((col, index) => (
+                {columns.filter(c => c.id !== 'ID').map((col, idx, arr) => {
+                  // 元の配列(columns)におけるインデックスを探す
+                  const index = columns.findIndex(c => c.id === col.id);
+                  return (
                   <div key={col.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem', backgroundColor: 'var(--bg-color)', borderRadius: '4px', border: '1px solid var(--glass-border)' }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.85rem', flex: 1, overflow: 'hidden' }}>
                       <input 
@@ -167,11 +173,14 @@ function App() {
                       <button 
                         className="btn-outline" 
                         style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem', opacity: index === 0 ? 0.3 : 1, cursor: index === 0 ? 'not-allowed' : 'pointer' }}
-                        disabled={index === 0}
+                        disabled={idx === 0}
                         onClick={() => {
                           const newCols = [...columns];
-                          const temp = newCols[index - 1];
-                          newCols[index - 1] = newCols[index];
+                          // find prev visible/filtered index to swap with
+                          const prevId = arr[idx - 1].id;
+                          const prevOriginalIndex = columns.findIndex(c => c.id === prevId);
+                          const temp = newCols[prevOriginalIndex];
+                          newCols[prevOriginalIndex] = newCols[index];
                           newCols[index] = temp;
                           setColumns(newCols);
                         }}
@@ -179,54 +188,22 @@ function App() {
                       <button 
                         className="btn-outline" 
                         style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem', opacity: index === columns.length - 1 ? 0.3 : 1, cursor: index === columns.length - 1 ? 'not-allowed' : 'pointer' }}
-                        disabled={index === columns.length - 1}
+                        disabled={idx === arr.length - 1}
                         onClick={() => {
                           const newCols = [...columns];
-                          const temp = newCols[index + 1];
-                          newCols[index + 1] = newCols[index];
+                          // find next visible/filtered index to swap with
+                          const nextId = arr[idx + 1].id;
+                          const nextOriginalIndex = columns.findIndex(c => c.id === nextId);
+                          const temp = newCols[nextOriginalIndex];
+                          newCols[nextOriginalIndex] = newCols[index];
                           newCols[index] = temp;
                           setColumns(newCols);
                         }}
                       >▼</button>
-                      {col.id !== 'ID' && (
-                        <button 
-                          type="button"
-                          className="btn-outline" 
-                          style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem', color: 'var(--danger-color)' }}
-                          title="削除"
-                          onClick={() => {
-                            if(window.confirm(`「${col.id}」列を削除しますか？`)) {
-                              setColumns(columns.filter(c => c.id !== col.id));
-                            }
-                          }}
-                        >✖</button>
-                      )}
                     </div>
                   </div>
-                ))}
-              </div>
-              
-              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-                <input 
-                  type="text" 
-                  placeholder="新しい列の名前..." 
-                  value={newColumnName}
-                  onChange={(e) => setNewColumnName(e.target.value)}
-                  style={{ flex: 1, padding: '0.5rem' }}
-                />
-                <button 
-                  type="button"
-                  className="btn-primary" 
-                  style={{ padding: '0.5rem 1rem' }}
-                  onClick={() => {
-                    const trimmed = newColumnName.trim();
-                    if (trimmed && !columns.find(c => c.id === trimmed)) {
-                      setColumns([...columns, { id: trimmed, visible: true }]);
-                      setNewColumnName('');
-                    }
-                  }}
-                  disabled={!newColumnName.trim()}
-                >追加</button>
+                  );
+                })}
               </div>
             </div>
 

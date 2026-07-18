@@ -28,8 +28,8 @@ const InventoryList = ({ gasApiUrl, columns = [] }) => {
       // Mock data for demonstration if URL is not set
       setTimeout(() => {
         setItems([
-          { 'ID': '001', 'Category 1': 'IC', 'Category 2': 'Microcontroller', 'Manufacturer': 'Espressif', 'Part number': 'ESP32-WROOM-32E', 'Qty': '5', 'location 1': 'Box A', 'location 2': 'Drawer 1', 'Note': 'Wi-Fi/BT', 'Akiduki': '' },
-          { 'ID': '002', 'Category 1': 'Passive', 'Category 2': 'Resistor', 'Manufacturer': 'Yageo', 'Part number': 'RC0402FR-0710KL', 'Qty': '100', 'location 1': 'Box B', 'location 2': 'Drawer 2', 'Note': '1/4W 1%', 'Akiduki': 'M-12345' }
+          { 'ID': '001', 'カテゴリ1': 'IC', 'カテゴリ2': 'マイコン', 'メーカー': 'Espressif', '型番': 'ESP32-WROOM-32E', '数量': '5', 'location 1': 'Box A', 'location 2': 'Drawer 1', 'Note': 'Wi-Fi/BT', 'サプライヤコード': '', 'サプライヤ': '秋月電子', 'データシート': '', 'リンク': '', 'メモ': '' },
+          { 'ID': '002', 'カテゴリ1': '受動部品', 'カテゴリ2': '抵抗', 'メーカー': 'Yageo', '型番': 'RC0402FR-0710KL', '数量': '100', 'location 1': 'Box B', 'location 2': 'Drawer 2', 'Note': '1/4W 1%', 'サプライヤコード': '100035', 'サプライヤ': '秋月電子', 'データシート': '', 'リンク': '', 'メモ': '' }
         ]);
         setLoading(false);
       }, 1000);
@@ -78,7 +78,7 @@ const InventoryList = ({ gasApiUrl, columns = [] }) => {
     const bVal = b[sortConfig.key] || '';
 
     // Handle numeric sorting for Qty
-    if (sortConfig.key === 'Qty') {
+    if (sortConfig.key === 'Qty' || sortConfig.key === '数量') {
       const aNum = parseFloat(aVal) || 0;
       const bNum = parseFloat(bVal) || 0;
       if (aNum < bNum) return sortConfig.direction === 'ascending' ? -1 : 1;
@@ -96,11 +96,11 @@ const InventoryList = ({ gasApiUrl, columns = [] }) => {
   let finalVisibleColumns = [];
   if (items.length > 0) {
     const itemKeys = Object.keys(items[0]);
-    // Start with the user's custom ordered, visible columns
-    const customVisibleKeys = columns.filter(c => c.visible).map(c => c.id);
+    // Start with the user's custom ordered, visible columns (explicitly filter out ID just in case)
+    const customVisibleKeys = columns.filter(c => c.visible && c.id !== 'ID').map(c => c.id);
     
     // Find any new keys from the data that are NOT in the settings at all, and append them just in case
-    const unknownKeys = itemKeys.filter(k => !columns.find(c => c.id === k));
+    const unknownKeys = itemKeys.filter(k => k !== 'ID' && !columns.find(c => c.id === k));
     
     // Merge them and ensure they actually exist in the data
     finalVisibleColumns = [...customVisibleKeys, ...unknownKeys].filter(k => itemKeys.includes(k));
