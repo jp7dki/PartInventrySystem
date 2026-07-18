@@ -1,16 +1,60 @@
-# React + Vite
+# ちっぷするん - 電子部品管理システム
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+「ちっぷするん」は、電子工作やハードウェア開発で使用する電子部品（IC、抵抗、コンデンサなど）を効率的に管理するためのWebアプリケーションです。Google スプレッドシートをデータベースとして利用し、OCR（光学文字認識）を用いた自動入力機能や、高度な検索・編集機能を提供します。
 
-Currently, two official plugins are available:
+## 主な機能
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### 1. スマートな部品追加機能
+* **OCR（画像認識）入力:**
+  * Google Cloud Vision APIを利用し、スマートフォンのカメラや画像のアップロードから部品の型番やパッケージのラベルを読み取ります。
+  * 画像内のテキストを自動で抽出し、入力フォームに転記する手間を省きます。
+* **秋月電子からの自動取得:**
+  * 「通販コード（例：`P-14526`）」を入力、またはOCRで読み取ることで、秋月電子のWebサイトから部品の名称、データシートのURL、商品リンクなどの詳細データを自動で取得・入力します。
+* **入力補助（オートコンプリート）:**
+  * カテゴリやメーカー名、保管場所などは、過去に登録した既存のデータをもとに入力候補をサジェスト（自動補完）します。
 
-## React Compiler
+### 2. 重複チェックと柔軟なデータ更新
+* **既存データの読み込み・上書き:**
+  * 同じ「型番」や「通販コード」を入力すると、すでにデータベースに登録されている情報を自動的に検出して確認メッセージを表示します。既存データを読み込んで、必要な項目だけを変更して上書き更新することができます。
+* **数量の四則演算入力（計算機能）:**
+  * 部品の在庫数を追加・消費する際、数量入力欄に `20+10`（20個に10個追加）や `30-5`（30個から5個消費）のように計算式を入力すると、システムが自動的に計算して最終的な数量（30や25）を保存します。
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 3. 一覧画面と高度な検索
+* **部品一覧の閲覧・インライン編集:**
+  * 登録した部品の一覧を表示します。長いURL（データシートや商品リンク）は自動で省略表示され、クリックして別タブで開くことができます。
+  * 一覧画面上で「数量」の数字を直接タップして、在庫数をその場でインライン編集（四則演算での変更も可能）できます。
+  * 一覧画面右端の「編集アイコン」から、登録済みの部品情報をすべて編集可能です。
+* **高度な詳細検索（フィルター機能）:**
+  * キーワード検索に加え、特定の列を対象にした詳細検索が可能です。
+  * **数量の条件指定:** `>=10`（10個以上）、`1-5`（1〜5個）などの範囲指定。
+  * **日付の条件指定:** `>2026/01/01`（指定日以降）、`2026/07/01~2026/07/31`（期間指定）など柔軟な日付フィルターが可能です。
+* **表示列のカスタマイズ:**
+  * 表示したい列（項目）の設定や、ドラッグ＆ドロップによる順番の入れ替えをカスタマイズでき、設定はお使いのブラウザに保存されます。
 
-## Expanding the Oxlint configuration
+### 4. タイムスタンプ機能
+* 部品を初めて登録した「新規追加日」と、数量変更などを保存した「最終更新日」をシステムが自動で記録し、スプレッドシートに保存します（一覧画面でも表示可能）。
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## セットアップと初期設定
+
+### 前提条件
+1. **Google アカウント:** データを保存するための Google スプレッドシートおよび Google Apps Script (GAS) 環境が必要です。
+2. **Google Cloud Vision API キー:** OCR機能を利用するために必要です（一定枠まで無料で利用可能です）。
+
+### 初期設定手順
+1. **Google Apps Script (GAS) の用意:**
+   * 本システムと連携する専用のGoogleスプレッドシートを作成し、拡張機能からApps Scriptを開いて提供されている `Code.gs` をデプロイします。
+   * デプロイして発行された「ウェブアプリのURL (Web API URL)」をコピーします。
+2. **アプリでの設定:**
+   * 「ちっぷするん」のWebアプリ右上の「歯車アイコン（設定）」を開きます。
+   * 「Google Cloud Vision API キー」と「Google Apps Script Web API URL」をそれぞれ入力し、保存します。
+3. **完了:**
+   * これで、アプリからデータを追加すると自動的にスプレッドシートと同期されるようになります。
+
+## 技術スタック
+* **フロントエンド:** React (Vite), JavaScript, CSS (レスポンシブ対応)
+* **バックエンド (データベース):** Google Apps Script (GAS), Google Spreadsheet
+* **アイコン:** Lucide React
+* **ホスティング:** GitHub Pages (推奨)
+
+## ライセンス
+このプロジェクトは個人・商用を問わず自由にご利用・改変いただけます。
