@@ -130,15 +130,10 @@ const InventoryList = ({ gasApiUrl, columns = [] }) => {
         
         const itemVal = item[key] || '';
         
-        if (key === 'Qty' || key === '数量') {
-          // Parse range for Qty. Format expected: "min-max" or ">min" or "<max" or exact "val"
-          // For simplicity, let's provide a text input that handles simple ranges or exact matches.
-          // Or even simpler: just simple text match for now unless we build specific min/max UI.
-          // Wait, user asked for "在庫数などを絞って". Let's support simple syntax like ">=10" or "10-20" or just use separate min/max state.
-          // To make it easy and robust, let's parse simple operators: ">10", "<=5", "10-20", or just plain number match.
+        if (key === 'Qty' || key === '数量' || key === '個数') {
           const fStr = filterVal.trim();
           const numVal = parseFloat(itemVal);
-          if (isNaN(numVal)) return false; // If item has no valid qty, it fails number filter
+          if (isNaN(numVal)) return false; 
           
           if (fStr.includes('-')) {
             const [min, max] = fStr.split('-').map(s => parseFloat(s.trim()));
@@ -153,8 +148,45 @@ const InventoryList = ({ gasApiUrl, columns = [] }) => {
           } else if (fStr.startsWith('<')) {
             if (numVal >= parseFloat(fStr.slice(1))) return false;
           } else {
-            // exact match
             if (numVal !== parseFloat(fStr)) return false;
+          }
+        } else if (key.includes('日') || key.toLowerCase().includes('date')) {
+          const fStr = filterVal.trim().replace(/～/g, '~');
+          const itemDate = new Date(itemVal);
+          
+          if (isNaN(itemDate.getTime())) {
+            if (!String(itemVal).toLowerCase().includes(filterVal.toLowerCase().trim())) return false;
+          } else {
+            if (fStr.includes('~')) {
+              const [minStr, maxStr] = fStr.split('~');
+              const minD = new Date(minStr.trim());
+              const maxD = new Date(maxStr.trim());
+              if (!isNaN(minD) && itemDate < minD) return false;
+              if (!isNaN(maxD)) {
+                if (maxStr.trim().length <= 10) maxD.setHours(23, 59, 59, 999);
+                if (itemDate > maxD) return false;
+              }
+            } else if (fStr.startsWith('>=')) {
+              const d = new Date(fStr.slice(2).trim());
+              if (!isNaN(d) && itemDate < d) return false;
+            } else if (fStr.startsWith('<=')) {
+              const d = new Date(fStr.slice(2).trim());
+              if (!isNaN(d)) {
+                if (fStr.slice(2).trim().length <= 10) d.setHours(23, 59, 59, 999);
+                if (itemDate > d) return false;
+              }
+            } else if (fStr.startsWith('>')) {
+              const d = new Date(fStr.slice(1).trim());
+              if (!isNaN(d)) {
+                if (fStr.slice(1).trim().length <= 10) d.setHours(23, 59, 59, 999);
+                if (itemDate <= d) return false;
+              }
+            } else if (fStr.startsWith('<')) {
+              const d = new Date(fStr.slice(1).trim());
+              if (!isNaN(d) && itemDate >= d) return false;
+            } else {
+              if (!String(itemVal).toLowerCase().includes(fStr.toLowerCase())) return false;
+            }
           }
         } else {
           // Generic text include
@@ -262,11 +294,12 @@ const InventoryList = ({ gasApiUrl, columns = [] }) => {
             </div>
             
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
-              {finalVisibleColumns.map(col => (
+              {columns.filter(c => c.id !== 'ID').map(c => c.id).map(col => (
                 <div key={col}>
                   <label style={{ display: 'block', fontSize: '0.8rem', marginBottom: '0.25rem', opacity: 0.8 }}>
                     {col}
-                    {(col === 'Qty' || col === '数量') && <span style={{ fontSize: '0.7rem', opacity: 0.6, marginLeft: '0.25rem' }}>(例: &gt;=10, 1-5)</span>}
+                    {(col === 'Qty' || col === '数量' || col === '個数') && <span style={{ fontSize: '0.7rem', opacity: 0.6, marginLeft: '0.25rem' }}>(例: &gt;=10, 1-5)</span>}
+                    {(col.includes('日') || col.toLowerCase().includes('date')) && <span style={{ fontSize: '0.7rem', opacity: 0.6, marginLeft: '0.25rem' }}>(例: &gt;2026/01/01, 2026/01~2026/12)</span>}
                   </label>
                   <input
                     type="text"
