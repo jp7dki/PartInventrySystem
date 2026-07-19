@@ -56,7 +56,10 @@ const InventoryList = ({ gasApiUrl, columns = [], isDemoMode, demoItems, setDemo
       const response = await fetch(gasApiUrl);
       const data = await response.json();
       if (data.status === 'success') {
-        setItems(data.data);
+        const validItems = data.data.filter(item => 
+          Object.values(item).some(val => String(val).trim() !== '')
+        );
+        setItems(validItems);
       } else {
         setError(data.message || 'Error fetching data');
       }
