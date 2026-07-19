@@ -103,6 +103,22 @@ function App() {
           <div className="glass-panel" style={{ padding: '2rem', width: '500px', maxWidth: '90%', maxHeight: '90vh', overflowY: 'auto' }}>
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}><Settings size={20} /> Settings</h3>
             
+            <div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: 'rgba(59, 130, 246, 0.05)', borderRadius: '8px', border: '1px dashed var(--primary-color)' }}>
+              <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.95rem', color: 'var(--primary-color)' }}>📖 初期設定マニュアル</h4>
+              <p style={{ fontSize: '0.85rem', opacity: 0.8, marginBottom: '0.75rem', lineHeight: '1.4' }}>
+                スプレッドシートの連携など、詳しい初期設定の手順はこちらをご覧ください。
+              </p>
+              <a 
+                href="https://github.com/jp7dki/PartInventrySystem/wiki" 
+                target="_blank" 
+                rel="noreferrer"
+                className="btn-primary"
+                style={{ display: 'inline-block', textDecoration: 'none', fontSize: '0.85rem', padding: '0.4rem 0.8rem' }}
+              >
+                初期設定方法を見る (Wiki)
+              </a>
+            </div>
+            
             <div style={{ marginBottom: '1.5rem' }}>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.9rem' }}>
                 Google Cloud Vision API キー
