@@ -105,7 +105,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
     if (!targetCode || !targetCode.trim()) return;
 
     // Check if targetCode already exists in dbItems
-    const supplierId = columns.find(c => ['supplier part number', '通販コード', '購入元コード', 'サプライヤコード'].includes(c.id.toLowerCase()))?.id || 'サプライヤコード';
+    const supplierId = columns.find(c => ['supplier part number', '販売コード', '購入元コード', 'サプライヤコード'].includes(c.id.toLowerCase()))?.id || 'サプライヤコード';
     const existingItem = dbItems.find(item => 
       item[supplierId] && String(item[supplierId]).toLowerCase() === targetCode.trim().toLowerCase()
     );
@@ -134,7 +134,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
         // Map to fields based on column names
         const partNameId = columns.find(c => ['part number', '部品名', '商品名', '型番'].includes(c.id.toLowerCase()))?.id || 'Part number';
         const categoryId = columns.find(c => ['category 1', 'category', 'カテゴリ', '分類'].includes(c.id.toLowerCase()))?.id || 'Category 1';
-        const supplierId = columns.find(c => ['supplier part number', '通販コード', '購入元コード', 'サプライヤコード'].includes(c.id.toLowerCase()))?.id || 'サプライヤコード';
+        const supplierId = columns.find(c => ['supplier part number', '販売コード', '購入元コード', 'サプライヤコード'].includes(c.id.toLowerCase()))?.id || 'サプライヤコード';
         const supplierNameId = columns.find(c => ['supplier', 'サプライヤ', '購入先', '仕入先'].includes(c.id.toLowerCase()))?.id || 'サプライヤ';
         const manufacturerId = columns.find(c => ['manufacturer', 'メーカー', '製造元'].includes(c.id.toLowerCase()))?.id || 'メーカー';
         const linkId = columns.find(c => ['link', 'リンク', 'url'].includes(c.id.toLowerCase()))?.id || 'リンク';
@@ -154,7 +154,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
         }));
         setAkizukiCode('');
       } else {
-        if (!isAuto) alert(data.message || '商品情報の取得に失敗しました。通販コードを確認してください。');
+        if (!isAuto) alert(data.message || '商品情報の取得に失敗しました。販売コードを確認してください。');
       }
     } catch (err) {
       console.error(err);
@@ -170,7 +170,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
 
   const handleInputChange = (field, value) => {
     const partNameId = columns.find(c => ['part number', '部品名', '商品名', '型番'].includes(c.id.toLowerCase()))?.id || 'Part number';
-    const supplierId = columns.find(c => ['supplier part number', '通販コード', '購入元コード', 'サプライヤコード'].includes(c.id.toLowerCase()))?.id || 'サプライヤコード';
+    const supplierId = columns.find(c => ['supplier part number', '販売コード', '購入元コード', 'サプライヤコード'].includes(c.id.toLowerCase()))?.id || 'サプライヤコード';
     
     if (field === partNameId) {
       if (value.trim() !== '') {
@@ -312,7 +312,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
         }
       }
 
-      // 抽出したブロックの中から通販コード（6桁の数字またはP-00035等）を探す
+      // 抽出したブロックの中から販売コード（6桁の数字またはP-00035等）を探す
       // OCRが「P」「-」「14526」のように文字を分離してしまうケースに対応するため、
       // まずは全文(textAnnotations[0].description)からプレフィックス付きのコードを探す
       const fullText = textAnnotations[0].description || '';
@@ -498,11 +498,11 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
           <h3 style={{ fontSize: '0.95rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Download size={16} /> 秋月電子から自動入力
           </h3>
-          <p style={{ fontSize: '0.8rem', opacity: 0.8, marginBottom: '0.75rem', margin: 0 }}>通販コード（例：110035, P-00035）を入力して取得すると、部品名やカテゴリが自動で入力されます。</p>
+          <p style={{ fontSize: '0.8rem', opacity: 0.8, marginBottom: '0.75rem', margin: 0 }}>販売コード（例：110035, P-00035）を入力して取得すると、部品名やカテゴリが自動で入力されます。</p>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <input 
               type="text" 
-              placeholder="通販コード" 
+              placeholder="販売コード" 
               value={akizukiCode}
               onChange={e => setAkizukiCode(e.target.value)}
               onFocus={() => setFocusedField('akizukiCode')}
