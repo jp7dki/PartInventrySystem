@@ -224,7 +224,10 @@ function App() {
 
       <header className="glass-panel">
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <h1 style={{ marginBottom: '0.2rem' }}>たなばんちゃん</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
+            <img src="./logo.png" alt="logo" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
+            <h1 style={{ marginBottom: 0 }}>たなばんちゃん</h1>
+          </div>
           <span style={{ fontSize: '0.85rem', opacity: 0.8, fontWeight: 500 }}>電子部品管理システム</span>
         </div>
         <div className="header-controls">
