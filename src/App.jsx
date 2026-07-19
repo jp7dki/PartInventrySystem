@@ -227,7 +227,7 @@ function App() {
           <img src="./logo.png" alt="logo" style={{ width: '48px', height: '48px', objectFit: 'contain', imageRendering: 'pixelated' }} />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <h1 style={{ marginBottom: '0.1rem' }}>たなばんちゃん</h1>
-            <span style={{ fontSize: '0.85rem', opacity: 0.8, fontWeight: 500 }}>電子部品管理システム</span>
+            <span style={{ fontSize: '0.85rem', opacity: 0.8, fontWeight: 500 }}>電子部品在庫管理システム</span>
           </div>
         </div>
         <div className="header-controls">
