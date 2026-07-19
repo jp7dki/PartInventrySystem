@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Camera, Upload, Loader2, CheckCircle2, Key, Download } from 'lucide-react';
 
-const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [], itemToEdit, onCancelEdit }) => {
+const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [], itemToEdit, onCancelEdit, isDemoMode, demoItems, setDemoItems }) => {
   const { t } = useTranslation();
   
   const [formData, setFormData] = useState({
@@ -21,6 +21,10 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
   const [dbItems, setDbItems] = useState([]);
 
   useEffect(() => {
+    if (isDemoMode) {
+      setDbItems(demoItems);
+      return;
+    }
     if (gasApiUrl && gasApiUrl.trim() !== '') {
       fetch(gasApiUrl)
         .then(res => res.json())
@@ -31,7 +35,7 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
         })
         .catch(err => console.error('Failed to fetch data:', err));
     }
-  }, [gasApiUrl]);
+  }, [gasApiUrl, isDemoMode, demoItems]);
   
   useEffect(() => {
     if (dbItems.length > 0 && columns.length > 0) {
@@ -424,8 +428,13 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
       payloadItem['最終更新日'] = nowStr;
     }
 
-    if (!gasApiUrl || gasApiUrl.trim() === '') {
+    if (isDemoMode) {
       setTimeout(() => {
+        if (isUpdate) {
+          setDemoItems(demoItems.map(i => i.ID === generatedId ? payloadItem : i));
+        } else {
+          setDemoItems([payloadItem, ...demoItems]);
+        }
         setSubmitStatus('success');
         setTimeout(() => {
           onAdded();

@@ -15,6 +15,17 @@ function App() {
   const [showHelp, setShowHelp] = useState(false);
   const [visionApiKey, setVisionApiKey] = useState(localStorage.getItem('VISION_API_KEY') || '');
   const [gasApiUrl, setGasApiUrl] = useState(localStorage.getItem('GAS_API_URL') || '');
+
+  const DEMO_DATA = [
+    { 'ID': 'DEMO-001', 'カテゴリ1': 'IC', 'カテゴリ2': 'マイコン', 'メーカー': 'Espressif', '型番': 'ESP32-WROOM-32E', '数量': '15', 'location 1': 'A棚', 'location 2': '1段目', 'Note': 'Wi-Fi/Bluetooth対応', 'サプライヤコード': '113421', 'サプライヤ': '秋月電子', 'データシート': '', 'リンク': '', 'メモ': '', '新規追加日': '2026/07/19 12:00', '最終更新日': '2026/07/19 12:00' },
+    { 'ID': 'DEMO-002', 'カテゴリ1': '受動部品', 'カテゴリ2': '抵抗', 'メーカー': 'Yageo', '型番': 'RC0402FR-0710KL', '数量': '100', 'location 1': 'B棚', 'location 2': '2段目', 'Note': '1/4W 1% 10kΩ', 'サプライヤコード': '100035', 'サプライヤ': '秋月電子', 'データシート': '', 'リンク': '', 'メモ': '', '新規追加日': '2026/07/19 12:01', '最終更新日': '2026/07/19 12:01' },
+    { 'ID': 'DEMO-003', 'カテゴリ1': '受動部品', 'カテゴリ2': 'コンデンサ', 'メーカー': '村田製作所', '型番': 'GRM155R71C104KA88D', '数量': '50', 'location 1': 'B棚', 'location 2': '3段目', 'Note': '0.1uF 16V', 'サプライヤコード': '104321', 'サプライヤ': '秋月電子', 'データシート': '', 'リンク': '', 'メモ': '', '新規追加日': '2026/07/19 12:02', '最終更新日': '2026/07/19 12:02' },
+    { 'ID': 'DEMO-004', 'カテゴリ1': 'センサー', 'カテゴリ2': '温湿度', 'メーカー': 'Sensirion', '型番': 'SHT31-DIS-B', '数量': '3', 'location 1': 'A棚', 'location 2': '2段目', 'Note': 'I2C接続', 'サプライヤコード': '112040', 'サプライヤ': '秋月電子', 'データシート': '', 'リンク': '', 'メモ': '', '新規追加日': '2026/07/19 12:03', '最終更新日': '2026/07/19 12:03' },
+    { 'ID': 'DEMO-005', 'カテゴリ1': '機構部品', 'カテゴリ2': 'スイッチ', 'メーカー': 'アルプスアルパイン', '型番': 'SKHHAMA010', '数量': '20', 'location 1': 'C棚', 'location 2': '1段目', 'Note': 'タクトスイッチ', 'サプライヤコード': '', 'サプライヤ': 'マルツ', 'データシート': '', 'リンク': '', 'メモ': '', '新規追加日': '2026/07/19 12:04', '最終更新日': '2026/07/19 12:04' },
+  ];
+  
+  const [demoItems, setDemoItems] = useState(DEMO_DATA);
+  const isDemoMode = !gasApiUrl || gasApiUrl.trim() === '';
   
   const defaultCols = [
     { id: 'ID', visible: false },
@@ -222,7 +233,7 @@ function App() {
         </div>
       )}
 
-      <header className="glass-panel">
+      <header className="glass-panel" style={{ marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <img src="./logo.png" alt="logo" style={{ width: '48px', height: '48px', objectFit: 'contain', imageRendering: 'pixelated' }} />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -242,6 +253,16 @@ function App() {
           </button>
         </div>
       </header>
+
+      {isDemoMode && (
+        <div style={{ padding: '0.75rem', backgroundColor: 'var(--primary-color)', color: 'white', borderRadius: '8px', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
+          <div>
+            <span style={{ fontWeight: 'bold' }}>【デモモード作動中】</span>
+            <span style={{ fontSize: '0.9rem', marginLeft: '0.5rem' }}>現在はブラウザ上のサンプルデータで動作しています。リロードすると初期化されます。</span>
+          </div>
+          <button onClick={() => setShowSettings(true)} style={{ backgroundColor: 'white', color: 'var(--primary-color)', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>設定を開く</button>
+        </div>
+      )}
 
       <div className="tabs">
         <button 
@@ -266,6 +287,9 @@ function App() {
           <InventoryList 
             gasApiUrl={gasApiUrl} 
             columns={columns} 
+            isDemoMode={isDemoMode}
+            demoItems={demoItems}
+            setDemoItems={setDemoItems}
             onEditItem={(item) => {
               setItemToEdit(item);
               setActiveTab('add');
@@ -284,6 +308,9 @@ function App() {
             columns={columns}
             itemToEdit={itemToEdit}
             onCancelEdit={() => setItemToEdit(null)}
+            isDemoMode={isDemoMode}
+            demoItems={demoItems}
+            setDemoItems={setDemoItems}
           />
         )}
       </main>

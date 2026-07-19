@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Search, Loader2, Filter, X, ChevronDown, ChevronUp, Edit2 } from 'lucide-react';
 
-const InventoryList = ({ gasApiUrl, columns = [], onEditItem }) => {
+const InventoryList = ({ gasApiUrl, columns = [], isDemoMode, demoItems, setDemoItems, onEditItem }) => {
   const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -42,19 +42,13 @@ const InventoryList = ({ gasApiUrl, columns = [], onEditItem }) => {
 
   useEffect(() => {
     fetchData();
-  }, [gasApiUrl]);
+  }, [gasApiUrl, isDemoMode, demoItems]);
 
   const fetchData = async () => {
     setLoading(true);
-    if (!gasApiUrl) {
-      // Mock data for demonstration if URL is not set
-      setTimeout(() => {
-        setItems([
-          { 'ID': '001', 'カテゴリ1': 'IC', 'カテゴリ2': 'マイコン', 'メーカー': 'Espressif', '型番': 'ESP32-WROOM-32E', '数量': '5', 'location 1': 'Box A', 'location 2': 'Drawer 1', 'Note': 'Wi-Fi/BT', 'サプライヤコード': '', 'サプライヤ': '秋月電子', 'データシート': '', 'リンク': '', 'メモ': '' },
-          { 'ID': '002', 'カテゴリ1': '受動部品', 'カテゴリ2': '抵抗', 'メーカー': 'Yageo', '型番': 'RC0402FR-0710KL', '数量': '100', 'location 1': 'Box B', 'location 2': 'Drawer 2', 'Note': '1/4W 1%', 'サプライヤコード': '100035', 'サプライヤ': '秋月電子', 'データシート': '', 'リンク': '', 'メモ': '' }
-        ]);
-        setLoading(false);
-      }, 1000);
+    if (isDemoMode) {
+      setItems(demoItems);
+      setLoading(false);
       return;
     }
 
@@ -79,7 +73,6 @@ const InventoryList = ({ gasApiUrl, columns = [], onEditItem }) => {
   };
 
   const updateQuantity = async (item, qtyKey, newQty) => {
-    if (!gasApiUrl) return;
     
     const evaluateMathExpression = (expr) => {
       if (typeof expr !== 'string') return expr;
@@ -101,7 +94,21 @@ const InventoryList = ({ gasApiUrl, columns = [], onEditItem }) => {
     }
     
     setUpdatingId(item.ID);
-    const updatedItem = { ...item, [qtyKey]: evaluatedQty };
+    
+    const padDate = (n) => String(n).padStart(2, '0');
+    const now = new Date();
+    const formattedDate = `${now.getFullYear()}/${padDate(now.getMonth()+1)}/${padDate(now.getDate())} ${padDate(now.getHours())}:${padDate(now.getMinutes())}`;
+    
+    const updatedItem = { ...item, [qtyKey]: evaluatedQty, 最終更新日: formattedDate };
+    
+    if (isDemoMode) {
+      setTimeout(() => {
+        setDemoItems(demoItems.map(i => i.ID === item.ID ? updatedItem : i));
+        setUpdatingId(null);
+        setEditingQty(null);
+      }, 500);
+      return;
+    }
     
     try {
       const response = await fetch(gasApiUrl, {
