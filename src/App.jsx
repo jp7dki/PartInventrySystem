@@ -36,7 +36,7 @@ function App() {
     { id: 'カテゴリ2', visible: true },
     { id: 'location 1', visible: true },
     { id: 'location 2', visible: true },
-    { id: 'Note', visible: true },
+    { id: 'Note', visible: false },
     { id: 'サプライヤコード', visible: true },
     { id: 'サプライヤ', visible: true },
     { id: 'データシート', visible: true },
