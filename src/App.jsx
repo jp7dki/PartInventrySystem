@@ -223,12 +223,12 @@ function App() {
       )}
 
       <header className="glass-panel">
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
-            <img src="./logo.png" alt="logo" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
-            <h1 style={{ marginBottom: 0 }}>たなばんちゃん</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <img src="./logo.png" alt="logo" style={{ width: '48px', height: '48px', objectFit: 'contain', imageRendering: 'pixelated' }} />
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <h1 style={{ marginBottom: '0.1rem' }}>たなばんちゃん</h1>
+            <span style={{ fontSize: '0.85rem', opacity: 0.8, fontWeight: 500 }}>電子部品管理システム</span>
           </div>
-          <span style={{ fontSize: '0.85rem', opacity: 0.8, fontWeight: 500 }}>電子部品管理システム</span>
         </div>
         <div className="header-controls">
           <button className="btn btn-outline" onClick={() => setShowHelp(true)} title="使い方">
