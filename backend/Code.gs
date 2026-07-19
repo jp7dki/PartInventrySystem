@@ -58,6 +58,51 @@ function doPost(e) {
       const newRow = headers.map(header => item[header] || '');
       sheet.appendRow(newRow);
       return createJsonResponse({ status: 'success', message: 'Item added successfully' });
+    } else if (action === 'update') {
+      const payloadKeys = Object.keys(item);
+      const newHeaders = payloadKeys.filter(key => !headers.includes(key));
+      
+      if (newHeaders.length > 0) {
+        headers = headers.concat(newHeaders);
+        sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      }
+
+      const data = sheet.getDataRange().getValues();
+      const idIndex = headers.indexOf('ID');
+      let targetRowIndex = -1;
+      
+      for (let i = 1; i < data.length; i++) {
+        if (data[i][idIndex] === item.ID) {
+          targetRowIndex = i + 1; // 1-indexed for sheet
+          break;
+        }
+      }
+
+      if (targetRowIndex !== -1) {
+        const newRow = headers.map(header => item[header] !== undefined ? item[header] : '');
+        sheet.getRange(targetRowIndex, 1, 1, headers.length).setValues([newRow]);
+        return createJsonResponse({ status: 'success', message: 'Item updated successfully' });
+      } else {
+        return createJsonResponse({ status: 'error', message: 'Item not found' });
+      }
+    } else if (action === 'delete') {
+      const data = sheet.getDataRange().getValues();
+      const idIndex = headers.indexOf('ID');
+      let targetRowIndex = -1;
+      
+      for (let i = 1; i < data.length; i++) {
+        if (data[i][idIndex] === item.ID) {
+          targetRowIndex = i + 1; // 1-indexed for sheet
+          break;
+        }
+      }
+
+      if (targetRowIndex !== -1) {
+        sheet.deleteRow(targetRowIndex);
+        return createJsonResponse({ status: 'success', message: 'Item deleted successfully' });
+      } else {
+        return createJsonResponse({ status: 'error', message: 'Item not found' });
+      }
     } else if (action === 'syncHeaders') {
       const payloadHeaders = payload.headers || [];
       const newHeaders = payloadHeaders.filter(key => !headers.includes(key));

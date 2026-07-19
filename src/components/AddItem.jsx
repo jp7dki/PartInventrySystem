@@ -370,6 +370,48 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
     }
   };
 
+  const handleDelete = async () => {
+    if (!editItemId) return;
+    if (!window.confirm('本当にこの部品を削除しますか？\nこの操作は取り消せません。')) {
+      return;
+    }
+
+    setSubmitStatus('submitting');
+
+    if (isDemoMode) {
+      setTimeout(() => {
+        setDemoItems(demoItems.filter(i => i.ID !== editItemId));
+        setSubmitStatus('success');
+        setTimeout(() => {
+          onAdded();
+        }, 1000);
+      }, 800);
+      return;
+    }
+
+    try {
+      const response = await fetch(gasApiUrl, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'delete', item: { ID: editItemId } }),
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+      });
+      const data = await response.json();
+      
+      if (data.status === 'success') {
+        setSubmitStatus('success');
+        setTimeout(() => {
+          onAdded();
+        }, 1000);
+      } else {
+        setSubmitStatus('error');
+        console.error(data.message);
+      }
+    } catch (err) {
+      setSubmitStatus('error');
+      console.error(err);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -571,22 +613,34 @@ const AddItem = ({ onAdded, visionApiKey, gasApiUrl, onOpenSettings, columns = [
                (editItemId ? '上書き更新する' : t('btn_add'))}
             </button>
             {editItemId && (
-              <button
-                type="button"
-                className="btn btn-outline"
-                onClick={() => {
-                  setEditItemId(null);
-                  if (onCancelEdit) onCancelEdit();
-                  setFormData(prev => {
-                    const newData = {};
-                    Object.keys(prev).forEach(k => newData[k] = '');
-                    return newData;
-                  });
-                }}
-                style={{ padding: '0.75rem', whiteSpace: 'nowrap' }}
-              >
-                キャンセル
-              </button>
+              <>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={handleDelete}
+                  disabled={submitStatus === 'submitting' || submitStatus === 'success'}
+                  style={{ padding: '0.75rem', whiteSpace: 'nowrap', color: 'var(--danger-color)', borderColor: 'var(--danger-color)' }}
+                  title="削除する"
+                >
+                  削除
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => {
+                    setEditItemId(null);
+                    if (onCancelEdit) onCancelEdit();
+                    setFormData(prev => {
+                      const newData = {};
+                      Object.keys(prev).forEach(k => newData[k] = '');
+                      return newData;
+                    });
+                  }}
+                  style={{ padding: '0.75rem', whiteSpace: 'nowrap' }}
+                >
+                  キャンセル
+                </button>
+              </>
             )}
           </div>
           
